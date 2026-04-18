@@ -2022,75 +2022,178 @@ async function resetAll(){
    ================================================================ */
 function exportExcel(){
   const wb=XLSX.utils.book_new();
+
+  // ── Sheet1: original format (Period,Accounts,Category,Subcategory,Note,JPY,Income/Expense,Description,Amount,Currency,Accounts)
+  const rows=[['Period','Accounts','Category','Subcategory','Note','JPY','Income/Expense','Description','Amount','Currency','Accounts']];
+  D.transactions.forEach(t=>{
+    const accName = t.type==='transfer' ? getAccName(t.from_account) : getAccName(t.account);
+    const amt = Number(t.amount)||0;
+    let typeStr='Exp.';
+    if(t.type==='income') typeStr='Income';
+    else if(t.type==='transfer') typeStr='Transfer-Out';
+
+    // Main row
+    rows.push([
+      t.date, accName, t.category||'Others', '', t.note||'',
+      amt, typeStr, t.note||'', amt, 'JPY', amt
+    ]);
+
+    // For transfer: also add Transfer-In row
+    if(t.type==='transfer'){
+      const toName=getAccName(t.to_account);
+      rows.push([
+        t.date, toName, accName, '', t.note||'',
+        amt, 'Transfer-In', t.note||'', amt, 'JPY', amt
+      ]);
+    }
+  });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'Sheet1');
+
+  // ── Transactions sheet: Reece format (for re-import)
   const txd=[['ID','Type','Amount','Account','Category','Date','Note']];
-  D.transactions.forEach(t=>txd.push([t.id,t.type,t.amount,t.account||`${t.from_account}->${t.to_account}`,t.category||'-',t.date,t.note||'-']));
+  D.transactions.forEach(t=>txd.push([
+    t.id, t.type, t.amount,
+    t.type==='transfer'?getAccName(t.from_account):getAccName(t.account),
+    t.category||'-', t.date, t.note||'-'
+  ]));
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(txd),'Transactions');
-  const invd=[['Code','Name','Type','Lot','Buy','Current','Value','Gain']];
-  D.investments.forEach(i=>invd.push([i.code,i.name,i.type,i.lot,i.buy_price,i.current_price,Number(i.current_price)*Number(i.lot),(Number(i.current_price)-Number(i.buy_price))*Number(i.lot)]));
+
+  // ── Investments sheet
+  const invd=[['Code','Name','Type','Lot','Buy Price','Current Price','Value','Gain/Loss']];
+  D.investments.forEach(i=>invd.push([
+    i.code,i.name,i.type,i.lot,i.buy_price,i.current_price,
+    Number(i.current_price)*Number(i.lot),
+    (Number(i.current_price)-Number(i.buy_price))*Number(i.lot)
+  ]));
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(invd),'Investments');
+
   XLSX.writeFile(wb,`reece_${new Date().toISOString().split('T')[0]}.xlsx`);
   showToast('📊 Excel exported!');
 }
 
 async function importExcel(input){
   const file=input.files[0]; if(!file) return;
-  showLoading('Importing data...');
+  showLoading('Reading file...');
   const reader=new FileReader();
   reader.onload=async e=>{
     try{
-      const wb=XLSX.read(e.target.result,{type:'binary'});
-      const ws=wb.Sheets['Transactions'];
-      if(!ws){hideLoading();showToast('❌ Sheet "Transactions" not found');return;}
-      const rows=XLSX.utils.sheet_to_json(ws,{header:1}).slice(1).filter(r=>r[2]);
+      const wb=XLSX.read(e.target.result,{type:'binary',cellDates:true});
 
-      // Step 1: collect all unique account names from data
-      const accNamesInFile = new Set();
-      rows.forEach(r=>{
-        if(r[3]) accNamesInFile.add(String(r[3]).trim());
-      });
+      // ── Detect format ──────────────────────────────────────
+      // Format A (Reece export): sheet="Transactions", cols: ID,Type,Amount,Account,Category,Date,Note
+      // Format B (original app): sheet="Sheet1",       cols: Period,Accounts,Category,Subcategory,Note,JPY,Income/Expense,...
+      let rows=[], isFormatB=false;
 
-      // Step 2: find which accounts don't exist yet
-      const existingAccNames = new Set(D.accounts.map(a=>a.name));
-      const toCreate = [...accNamesInFile].filter(n=>n&&n!=='-'&&!existingAccNames.has(n));
+      const wsA = wb.Sheets['Transactions'];
+      const wsB = wb.Sheets['Sheet1'];
 
-      // Step 3: auto-create missing accounts
-      if(toCreate.length>0){
-        const newAccs = toCreate.map(name=>({
-          id:'acc_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
-          user_id:USER.id,
-          name,
-          group_type: name.toLowerCase().includes('cc')||name.toLowerCase().includes('card')||name.toLowerCase().includes('jcb')||name.toLowerCase().includes('visa')?'Credit Card':
-                      name.toLowerCase().includes('cash')?'Cash':'Saving',
-          balance:0,
-          icon: name.toLowerCase().includes('cc')||name.toLowerCase().includes('card')||name.toLowerCase().includes('jcb')?'💳':
-                name.toLowerCase().includes('cash')?'💵':'🏦'
-        }));
-        // Insert to DB in batches
-        for(let i=0;i<newAccs.length;i+=50){
-          await sb.from('accounts').insert(newAccs.slice(i,i+50));
+      if(wsB){
+        const raw=XLSX.utils.sheet_to_json(wsB,{header:1,raw:false});
+        const header=raw[0]||[];
+        if(header[0]==='Period'&&header[6]==='Income/Expense'){
+          isFormatB=true;
+          rows=raw.slice(1).filter(r=>r[0]&&r[6]);
         }
-        D.accounts.push(...newAccs);
-        showToast(`✅ Auto-created ${newAccs.length} accounts`);
+      }
+      if(!isFormatB && wsA){
+        rows=XLSX.utils.sheet_to_json(wsA,{header:1}).slice(1).filter(r=>r[2]);
+      }
+      if(!rows.length){ hideLoading(); showToast('❌ No data found. Check sheet name.'); return; }
+
+      // ── Auto-create missing accounts ───────────────────────
+      const accNamesInFile=new Set();
+      if(isFormatB){
+        rows.forEach(r=>{
+          if(r[1]) accNamesInFile.add(String(r[1]).trim()); // Accounts col
+          // For Transfer, also add destination (Category col when it's an account name)
+          if(r[6]==='Transfer-In'||r[6]==='Transfer-Out'){
+            if(r[2]) accNamesInFile.add(String(r[2]).trim());
+          }
+        });
+      } else {
+        rows.forEach(r=>{ if(r[3]) accNamesInFile.add(String(r[3]).trim()); });
       }
 
-      // Build name→id map
+      const existingAccNames=new Set(D.accounts.map(a=>a.name));
+      const toCreate=[...accNamesInFile].filter(n=>n&&n!=='-'&&n!==''&&!existingAccNames.has(n));
+      if(toCreate.length>0){
+        const newAccs=toCreate.map(name=>{
+          const nl=name.toLowerCase();
+          const group=nl.includes('cc')||nl.includes('jcb')||nl.includes('visa')||nl.includes('card')?'Credit Card':
+                      nl.includes('cash')||nl==='cash'?'Cash':
+                      nl.includes('証券')||nl.includes('stock')||nl.includes('invest')?'Investment':
+                      nl.includes('emas')||nl.includes('gold')?'Investment':
+                      nl.includes('paypay')||nl.includes('icoca')||nl.includes('suica')?'Prepaid':'Saving';
+          const icon=group==='Credit Card'?'💳':group==='Cash'?'💵':group==='Investment'?'📈':group==='Prepaid'?'🪙':'🏦';
+          return {id:'acc_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),user_id:USER.id,name,group_type:group,balance:0,icon};
+        });
+        for(let i=0;i<newAccs.length;i+=50) await sb.from('accounts').insert(newAccs.slice(i,i+50));
+        D.accounts.push(...newAccs);
+      }
+
+      // Build account name→id map
       const accMap={};
       D.accounts.forEach(a=>{ accMap[a.name]=a.id; });
 
-      // Step 4: build transactions
-      const newTxs = rows.map((r,idx)=>({
-        id: Date.now()+idx,
-        user_id: USER.id,
-        type: r[1]||'expense',
-        amount: Number(r[2])||0,
-        account: accMap[String(r[3]||'').trim()] || String(r[3]||'').trim(),
-        category: r[4]||'Others',
-        date: r[5]||new Date().toISOString().split('T')[0],
-        note: r[6]||'',
-        recurring: null,
-      }));
+      // ── Build transactions ─────────────────────────────────
+      const newTxs=[];
+      rows.forEach((r,idx)=>{
+        if(isFormatB){
+          // Period,Accounts,Category,Subcategory,Note,JPY,Income/Expense,Description,Amount,Currency
+          const rawDate = r[0];
+          let dateStr='';
+          if(rawDate){
+            // Could be Date object or string like "2026-03-27 12:59:00"
+            const d = rawDate instanceof Date ? rawDate : new Date(rawDate);
+            if(!isNaN(d.getTime())) dateStr=d.toISOString().split('T')[0];
+            else dateStr=String(rawDate).split(' ')[0].split('T')[0];
+          }
+          const accName  = String(r[1]||'').trim();
+          const cat      = r[3]||r[2]||'Others'; // prefer subcategory
+          const note     = r[4]||r[7]||'';
+          const amount   = Math.abs(Number(r[5])||Number(r[8])||0);
+          const typeRaw  = String(r[6]||'').trim();
 
-      // Step 5: insert in batches of 500
+          if(!amount||!typeRaw) return;
+
+          let type='expense',fromAcc='',toAcc='';
+          if(typeRaw==='Income')         type='income';
+          else if(typeRaw==='Exp.')       type='expense';
+          else if(typeRaw==='Transfer-Out'){
+            type='transfer';
+            fromAcc=accMap[accName]||accName;
+            toAcc  =accMap[String(r[2]||'').trim()]||String(r[2]||'').trim();
+          } else if(typeRaw==='Transfer-In'){
+            // Skip Transfer-In — already captured as Transfer-Out from the other row
+            return;
+          }
+
+          const tx={
+            id: Date.now()+idx+Math.floor(Math.random()*1000),
+            user_id:USER.id, type, amount, date:dateStr,
+            note:String(note).trim(),
+            category:String(cat).trim(),
+            recurring:null,
+          };
+          if(type==='transfer'){ tx.from_account=fromAcc; tx.to_account=toAcc; tx.account=null; }
+          else { tx.account=accMap[accName]||accName; }
+          newTxs.push(tx);
+
+        } else {
+          // Reece format: ID,Type,Amount,Account,Category,Date,Note
+          const amount=Number(r[2])||0; if(!amount) return;
+          newTxs.push({
+            id:Date.now()+idx,user_id:USER.id,
+            type:r[1]||'expense',amount,
+            account:accMap[String(r[3]||'').trim()]||String(r[3]||'').trim(),
+            category:r[4]||'Others',
+            date:r[5]||new Date().toISOString().split('T')[0],
+            note:r[6]||'',recurring:null,
+          });
+        }
+      });
+
+      // ── Insert in batches ──────────────────────────────────
       const batchSize=500;
       for(let i=0;i<newTxs.length;i+=batchSize){
         await sb.from('transactions').insert(newTxs.slice(i,i+batchSize));
@@ -2100,7 +2203,7 @@ async function importExcel(input){
       document.getElementById('nav-tx-badge').textContent=D.transactions.length;
       hideLoading();
       navTo(currentPage,document.querySelector(`.nav-item[data-page="${currentPage}"]`));
-      showToast(`✅ Imported ${newTxs.length} transactions · ${toCreate.length} accounts created!`);
+      showToast(`✅ Imported ${newTxs.length} transactions · ${toCreate.length} accounts auto-created!`);
     }catch(err){
       hideLoading();
       showToast('❌ Import error: '+err.message);
