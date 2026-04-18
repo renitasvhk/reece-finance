@@ -839,13 +839,19 @@ function enterApp() {
 }
 
 async function doLogout() {
+  // Only clear session - data stays in Supabase
   localStorage.removeItem('reece_user');
-  USER=null;
-  D={accounts:[],transactions:[],investments:[],budgets:{},notes:[],currency:'JPY',lang:'en',theme:null,font:'Geist',fontSize:'14',
-    categories:{income:['Salary','Bonus','Freelance','Others'],expense:['Food','Transport','Rent','Utilities','Shopping','Health','Entertainment','Education','Others']}};
+  USER = null;
+  // Reset local cache only (not DB)
+  D.accounts=[]; D.transactions=[]; D.investments=[];
+  D.budgets={}; D.notes=[];
+  // Keep preferences
   document.getElementById('login-screen').classList.remove('out');
   document.getElementById('app').style.display='none';
   document.getElementById('login-pass').value='';
+  document.getElementById('login-err').style.display='none';
+  // Reset to sign in mode
+  setLoginMode('login', document.querySelector('.login-tab'));
 }
 
 /* ================================================================
@@ -896,20 +902,20 @@ function renderHome(c) {
       <div class="g-emoji">🌸</div>
     </div>
     <div class="stat-row">
-      <div class="stat-card income"><div class="stat-top"><div class="stat-label" data-i18n="earn_overview">${T('earn_overview')}</div><div class="stat-icon-wrap" style="background:var(--blue-soft);color:var(--blue)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div></div><div class="stat-value">${fmt(totalInc)}</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">${T('this_month')}</div></div>
-      <div class="stat-card expense"><div class="stat-top"><div class="stat-label" data-i18n="spend_overview">${T('spend_overview')}</div><div class="stat-icon-wrap" style="background:var(--expense-soft);color:var(--expense)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></div></div><div class="stat-value">${fmt(totalExp)}</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">${T('this_month')}</div></div>
+      <div class="stat-card income"><div class="stat-top"><div class="stat-label" data-i18n="earn_overview">${T('earn_overview')}</div><div class="stat-icon-wrap" style="background:var(--blue-soft);color:var(--blue)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div></div><div class="stat-value">${fmt(totalInc)}</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">All time</div></div>
+      <div class="stat-card expense"><div class="stat-top"><div class="stat-label" data-i18n="spend_overview">${T('spend_overview')}</div><div class="stat-icon-wrap" style="background:var(--expense-soft);color:var(--expense)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></div></div><div class="stat-value">${fmt(totalExp)}</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">All time</div></div>
       <div class="stat-card saving"><div class="stat-top"><div class="stat-label" data-i18n="net_cashflow">${T('net_cashflow')}</div><div class="stat-icon-wrap" style="background:var(--saving-soft);color:var(--saving)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div><div class="stat-value" style="color:${totalInc-totalExp>=0?'var(--saving)':'var(--expense)'}">${fmt(totalInc-totalExp)}</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">Income - Expense</div></div>
       <div class="stat-card invest"><div class="stat-top"><div class="stat-label" data-i18n="investment">Investment</div><div class="stat-icon-wrap" style="background:var(--invest-soft);color:var(--invest)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div></div><div class="stat-value">${fmt(totalInv)}</div><div style="font-size:11px;color:var(--text3);margin-top:4px;">${D.investments.length} assets</div></div>
     </div>
     <div class="two-col" style="margin-bottom:16px;">
       <div class="card card-p">
-        <div class="sec-hdr"><div class="sec-title">${T('earn_overview')}</div><span style="font-size:12px;color:var(--text3)">${T('this_month')}</span></div>
+        <div class="sec-hdr"><div class="sec-title">${T('earn_overview')}</div></div>
         <div style="font-size:var(--overview-font-size,28px);font-weight:800;font-family:var(--mono);letter-spacing:-1.5px;color:var(--blue);margin-bottom:2px;">${fmt(totalInc)}</div>
         <div style="font-size:12px;color:var(--matcha);font-weight:600;margin-bottom:10px;">↑ ${totalInc>0?((totalInc/(totalInc+totalExp))*100).toFixed(1):0}% of total cashflow</div>
         <div class="chart-box chart-box-h200"><canvas id="earn-line"></canvas></div>
       </div>
       <div class="card card-p">
-        <div class="sec-hdr"><div class="sec-title">${T('spend_overview')}</div><span style="font-size:12px;color:var(--text3)">${T('this_month')}</span></div>
+        <div class="sec-hdr"><div class="sec-title">${T('spend_overview')}</div></div>
         <div style="font-size:var(--overview-font-size,28px);font-weight:800;font-family:var(--mono);letter-spacing:-1.5px;color:var(--expense);margin-bottom:2px;">${fmt(totalExp)}</div>
         <div style="font-size:12px;color:var(--expense);font-weight:600;margin-bottom:10px;">↓ ${totalExp>0?((totalExp/(totalInc||1))*100).toFixed(1):0}% of income</div>
         <div class="spend-legend" style="margin-bottom:8px;">${topCats.map(([cat,amt],i)=>`<div class="spend-dot"><div class="spend-dot-color" style="background:${catColors[i]}"></div><span style="font-weight:600">${cat}</span><span style="color:var(--text3)">${fmt(amt)}</span></div>`).join('')}</div>
@@ -984,12 +990,28 @@ function drawCfBar(type){
   const byM=Array(12).fill(0).map(()=>({inc:0,exp:0}));
   D.transactions.forEach(t=>{const m=new Date(t.date).getMonth();if(t.type==='income')byM[m].inc+=Number(t.amount);if(t.type==='expense')byM[m].exp+=Number(t.amount);});
   const data=type==='income'?byM.map(m=>m.inc):type==='expense'?byM.map(m=>m.exp):byM.map(m=>m.inc-m.exp);
-  const colorPos=type==='income'?'rgba(74,124,255,.78)':type==='expense'?'rgba(240,92,110,.75)':'rgba(59,184,196,.75)';
-  const colorNeg='rgba(240,92,110,.65)';
   const curMonth=new Date().getMonth();
+  // Calculate average for comparison
+  const nonZero=data.filter(v=>v!==0);
+  const avg=nonZero.length?nonZero.reduce((a,b)=>a+b,0)/nonZero.length:0;
   const bgColors=data.map((v,i)=>{
-    if(i===curMonth) return type==='income'?'#4a7cff':type==='expense'?'#f05c6e':'#3bb8c4';
-    return v>=0?colorPos:colorNeg;
+    const isCurrentMonth = i===curMonth;
+    const alpha = isCurrentMonth ? '1' : '.72';
+    if(type==='income'){
+      // Income: blue always, brighter for current month
+      return isCurrentMonth?'#4a7cff':'rgba(74,124,255,.65)';
+    } else if(type==='expense'){
+      // Expense: green if below average (good), red if above average (bad)
+      if(v===0) return 'rgba(200,200,200,.3)';
+      return v<=avg
+        ? (isCurrentMonth?'#3ec9a7':'rgba(62,201,167,'+alpha+')')
+        : (isCurrentMonth?'#f05c6e':'rgba(240,92,110,'+alpha+')');
+    } else {
+      // Net: green if positive (saving), red if negative (deficit)
+      return v>=0
+        ? (isCurrentMonth?'#3ec9a7':'rgba(62,201,167,'+alpha+')')
+        : (isCurrentMonth?'#f05c6e':'rgba(240,92,110,'+alpha+')');
+    }
   });
 
   ctx._chart=new Chart(ctx,{
@@ -1437,55 +1459,86 @@ function aDrawAccBar(){
 /* ================================================================
    TRANSACTIONS
    ================================================================ */
-let txState = { page:1, pageSize:50, mode:'pagination', filterType:'all', filterAccount:'all', filterCat:'all', query:'' };
+let txState = {
+  page:1, pageSize:50, mode:'pagination',
+  filterType:'all', filterAccount:'all', filterCat:'all', query:'',
+  periodMode:'month',   // 'month' | 'custom'
+  selectedMonth:'',     // 'YYYY-MM'
+  customStart:'', customEnd:''
+};
 let txFiltered = [];
 
 function renderTransactions(c){
-  txState = { page:1, pageSize:50, mode:'pagination', filterType:'all', filterAccount:'all', filterCat:'all', query:'' };
+  // Build available months from transactions
+  const monthSet = new Set(D.transactions.map(t=>t.date?t.date.substring(0,7):'').filter(Boolean));
+  const months = [...monthSet].sort().reverse(); // newest first
+
+  // Default selected month = latest
+  if(!txState.selectedMonth && months.length) txState.selectedMonth = months[0];
+
   const allCats = [...new Set(D.transactions.map(t=>t.category).filter(Boolean))].sort();
 
-  c.innerHTML=`<div class="page">
+  c.innerHTML = `<div class="page">
+    <!-- Period selector row -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+      <div style="display:flex;gap:4px;">
+        <button class="pbtn${txState.periodMode==='month'?' active':''}" onclick="setTxPeriodMode('month')" style="padding:6px 12px;font-size:12px;">By Month</button>
+        <button class="pbtn${txState.periodMode==='custom'?' active':''}" onclick="setTxPeriodMode('custom')" style="padding:6px 12px;font-size:12px;">Custom</button>
+      </div>
+      ${txState.periodMode==='month' ? `
+        <select class="sel" id="tx-month-sel" onchange="setTxMonth(this.value)" style="font-size:13px;">
+          ${months.map(m=>`<option value="${m}" ${txState.selectedMonth===m?'selected':''}>${m}</option>`).join('')}
+        </select>
+        <span style="font-size:12px;color:var(--text3);">or</span>
+        <button class="pbtn" onclick="setTxMonth('all')" style="padding:6px 12px;font-size:12px;${txState.selectedMonth==='all'?'background:var(--blue);color:#fff;border-color:var(--blue)':''}">All</button>
+      ` : `
+        <input type="date" id="tx-cs" class="sel" value="${txState.customStart}" style="font-size:12px;" onchange="txState.customStart=this.value;txState.page=1;applyTxFilter()"/>
+        <span style="color:var(--text3)">—</span>
+        <input type="date" id="tx-ce" class="sel" value="${txState.customEnd}" style="font-size:12px;" onchange="txState.customEnd=this.value;txState.page=1;applyTxFilter()"/>
+      `}
+    </div>
+
     <!-- Filter bar -->
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
       <div style="flex:1;min-width:160px;">
         <div class="search-wrap" style="background:var(--surface);">
           <span>🔍</span>
-          <input type="text" placeholder="Search note / category..." oninput="txState.query=this.value;txState.page=1;applyTxFilter()" style="border:none;background:none;outline:none;font-size:13px;width:100%;"/>
+          <input type="text" placeholder="Search..." oninput="txState.query=this.value;txState.page=1;applyTxFilter()" style="border:none;background:none;outline:none;font-size:13px;width:100%;"/>
         </div>
       </div>
       <select class="sel" onchange="txState.filterType=this.value;txState.page=1;applyTxFilter()">
-        <option value="all">${T('all_types')}</option>
-        <option value="income">Income</option>
-        <option value="expense">Expense</option>
-        <option value="transfer">Transfer</option>
+        <option value="all">All Types</option>
+        <option value="income">${T('income')}</option>
+        <option value="expense">${T('expense')}</option>
+        <option value="transfer">${T('transfer')}</option>
       </select>
       <select class="sel" onchange="txState.filterAccount=this.value;txState.page=1;applyTxFilter()">
-        <option value="all">${T('all_accounts')}</option>
+        <option value="all">All Accounts</option>
         ${D.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('')}
       </select>
-      <select class="sel" id="tx-cat-sel" onchange="txState.filterCat=this.value;txState.page=1;applyTxFilter()">
-        <option value="all">${T('all_categories')}</option>
+      <select class="sel" onchange="txState.filterCat=this.value;txState.page=1;applyTxFilter()">
+        <option value="all">All Categories</option>
         ${allCats.map(c=>`<option value="${c}">${c}</option>`).join('')}
       </select>
       <div style="display:flex;gap:4px;">
-        <button class="pbtn active" id="tx-mode-page" onclick="txState.mode='pagination';txState.page=1;this.classList.add('active');document.getElementById('tx-mode-inf').classList.remove('active');applyTxFilter()" style="padding:6px 10px;font-size:11px;">Pages</button>
-        <button class="pbtn" id="tx-mode-inf" onclick="txState.mode='infinite';txState.page=1;this.classList.add('active');document.getElementById('tx-mode-page').classList.remove('active');applyTxFilter()" style="padding:6px 10px;font-size:11px;">Scroll</button>
+        <button class="pbtn${txState.mode==='pagination'?' active':''}" id="tx-mode-page" onclick="txState.mode='pagination';txState.page=1;applyTxFilter()" style="padding:6px 10px;font-size:11px;">Pages</button>
+        <button class="pbtn${txState.mode==='infinite'?' active':''}" id="tx-mode-inf" onclick="txState.mode='infinite';txState.page=1;applyTxFilter()" style="padding:6px 10px;font-size:11px;">Scroll</button>
       </div>
       <button class="btn btn-blue" onclick="openTxModal()">+ Add</button>
     </div>
 
-    <!-- Trend chart for filtered data -->
-    <div class="card card-p" style="margin-bottom:14px;" id="tx-trend-card">
+    <!-- Trend chart -->
+    <div class="card card-p" style="margin-bottom:14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div class="sec-title">Trend <span id="tx-trend-label" style="font-size:11px;color:var(--text3);font-weight:400"></span></div>
         <div id="tx-trend-summary" style="font-size:12px;color:var(--text2);font-family:var(--mono)"></div>
       </div>
-      <div class="chart-box" style="height:160px;"><canvas id="tx-trend-chart"></canvas></div>
+      <div class="chart-box" style="height:140px;"><canvas id="tx-trend-chart"></canvas></div>
     </div>
 
     <!-- Table -->
     <div class="card" style="overflow:hidden;">
-      <div id="tx-table-info" style="padding:10px 16px;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <div style="padding:10px 16px;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
         <span id="tx-count-label"></span>
         <div style="display:flex;gap:6px;" id="tx-page-top"></div>
       </div>
@@ -1502,24 +1555,59 @@ function renderTransactions(c){
   applyTxFilter();
 }
 
+function setTxPeriodMode(mode){
+  txState.periodMode=mode; txState.page=1;
+  navTo('transactions', document.querySelector('.nav-item[data-page="transactions"]'));
+}
+
+function setTxMonth(m){
+  txState.selectedMonth=m; txState.page=1;
+  // Update select
+  const sel=document.getElementById('tx-month-sel');
+  if(sel) sel.value=m;
+  applyTxFilter();
+}
+
 function applyTxFilter(){
-  const {filterType,filterAccount,filterCat,query} = txState;
+  const {filterType,filterAccount,filterCat,query,periodMode,selectedMonth,customStart,customEnd} = txState;
+
   txFiltered = D.transactions.filter(t=>{
+    // Period filter
+    if(periodMode==='month' && selectedMonth && selectedMonth!=='all'){
+      if(!t.date||!t.date.startsWith(selectedMonth)) return false;
+    }
+    if(periodMode==='custom'){
+      if(customStart && t.date && t.date<customStart) return false;
+      if(customEnd   && t.date && t.date>customEnd)   return false;
+    }
+    // Type filter
     if(filterType!=='all' && t.type!==filterType) return false;
-    if(filterAccount!=='all' && t.account!==filterAccount && t.from_account!==filterAccount && t.to_account!==filterAccount) return false;
+    // Account filter
+    if(filterAccount!=='all'){
+      if(t.type==='transfer'){
+        if(t.from_account!==filterAccount && t.to_account!==filterAccount) return false;
+      } else {
+        if(t.account!==filterAccount) return false;
+      }
+    }
+    // Category filter
     if(filterCat!=='all' && t.category!==filterCat) return false;
-    if(query){const q=query.toLowerCase(); if(!(t.note||'').toLowerCase().includes(q)&&!(t.category||'').toLowerCase().includes(q)&&!(t.note||'').toLowerCase().includes(q)) return false;}
+    // Search
+    if(query){
+      const q=query.toLowerCase();
+      if(!(t.note||'').toLowerCase().includes(q)&&!(t.category||'').toLowerCase().includes(q)) return false;
+    }
     return true;
   });
 
-  // Trend chart of filtered data
+  // Draw trend
   drawTxTrend(txFiltered);
 
   // Summary
   const sumInc=txFiltered.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0);
   const sumExp=txFiltered.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);
   const sumEl=document.getElementById('tx-trend-summary');
-  if(sumEl) sumEl.innerHTML=`<span style="color:var(--blue)">+${fmt(sumInc)}</span> &nbsp; <span style="color:var(--expense)">-${fmt(sumExp)}</span>`;
+  if(sumEl) sumEl.innerHTML=`<span style="color:var(--blue)">+${fmt(sumInc)}</span> &nbsp; <span style="color:var(--expense)">-${fmt(sumExp)}</span> &nbsp; <span style="color:var(--saving);font-weight:700;">${fmt(sumInc-sumExp)}</span>`;
 
   renderTxTable();
 }
@@ -1530,19 +1618,23 @@ function drawTxTrend(txs){
   if(txTrendChart){txTrendChart.destroy();txTrendChart=null;}
   const byM={};
   txs.forEach(t=>{
-    const k=t.date.substring(0,7);
+    const k=t.date?t.date.substring(0,7):'';
+    if(!k) return;
     if(!byM[k]) byM[k]={inc:0,exp:0};
-    if(t.type==='income') byM[k].inc+=Number(t.amount);
+    if(t.type==='income')  byM[k].inc+=Number(t.amount);
     if(t.type==='expense') byM[k].exp+=Number(t.amount);
   });
   const labels=Object.keys(byM).sort();
-  if(!labels.length){const lbl=document.getElementById('tx-trend-label');if(lbl)lbl.textContent='(no data)';return;}
+  if(!labels.length){ const lbl=document.getElementById('tx-trend-label');if(lbl)lbl.textContent='(no data)';return;}
   const lbl=document.getElementById('tx-trend-label');
-  if(lbl) lbl.textContent=`(${labels[0]} — ${labels[labels.length-1]})`;
+  if(lbl) lbl.textContent=labels.length>1?`(${labels[0]} — ${labels[labels.length-1]})`:`(${labels[0]})`;
+  const TT={backgroundColor:'rgba(17,24,39,.88)',bodyFont:{family:'Geist Mono',size:11},padding:10,cornerRadius:8};
   txTrendChart=new Chart(ctx,{type:'bar',data:{labels,datasets:[
-    {label:'Income',data:labels.map(k=>byM[k].inc),backgroundColor:'rgba(74,124,255,.7)',borderRadius:4,borderSkipped:false},
-    {label:'Expense',data:labels.map(k=>byM[k].exp),backgroundColor:'rgba(240,92,110,.65)',borderRadius:4,borderSkipped:false},
-  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{font:{family:'Geist',size:11},boxWidth:8,padding:10,usePointStyle:true}},tooltip:{backgroundColor:'rgba(17,24,39,.88)',bodyFont:{family:'Geist Mono',size:11},padding:10,cornerRadius:8,callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.raw)}`}}},scales:{x:{grid:{display:false},ticks:{font:{size:9},color:'var(--text3)',maxRotation:45}},y:{display:false}},animation:{duration:400}}});
+    {label:T('income'), data:labels.map(k=>byM[k].inc),backgroundColor:'rgba(74,124,255,.7)',borderRadius:4,borderSkipped:false},
+    {label:T('expense'),data:labels.map(k=>byM[k].exp),backgroundColor:'rgba(240,92,110,.65)',borderRadius:4,borderSkipped:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{position:'bottom',labels:{font:{family:'Geist',size:11},boxWidth:8,padding:10,usePointStyle:true}},tooltip:{...TT,callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.raw)}`}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:9},color:'var(--text3)',maxRotation:45}},y:{display:false}},animation:{duration:400}}});
 }
 
 function renderTxTable(){
@@ -1553,17 +1645,12 @@ function renderTxTable(){
     ? txFiltered.slice((page-1)*pageSize, page*pageSize)
     : txFiltered.slice(0, page*pageSize);
 
-  // Count label
   const countEl=document.getElementById('tx-count-label');
   if(countEl) countEl.textContent=`${total} transactions · showing ${sliced.length}`;
 
-  // Table rows
   const tbody=document.getElementById('tx-tbody');
   if(tbody) tbody.innerHTML=buildTxTableRows(sliced);
 
-  // Pagination top
-  const pageTop=document.getElementById('tx-page-top');
-  const pageBot=document.getElementById('tx-page-bottom');
   const pageHtml = mode==='pagination' && totalPages>1 ? `
     <button class="btn btn-ghost btn-sm" onclick="txPageNav(-1)" ${page<=1?'disabled':''}>← Prev</button>
     <span style="font-size:12px;color:var(--text2);font-weight:600;padding:0 4px;">${page} / ${totalPages}</span>
@@ -1571,6 +1658,8 @@ function renderTxTable(){
   ` : mode==='infinite' && sliced.length<total ? `
     <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="txState.page++;renderTxTable()">Load more (${total-sliced.length} remaining)</button>
   ` : '';
+  const pageTop=document.getElementById('tx-page-top');
+  const pageBot=document.getElementById('tx-page-bottom');
   if(pageTop) pageTop.innerHTML=pageHtml;
   if(pageBot) pageBot.innerHTML=pageHtml;
 }
@@ -1599,7 +1688,6 @@ function buildTxTableRows(txs){
 }
 
 function searchTx(q){ if(currentPage==='transactions'){ txState.query=q; txState.page=1; applyTxFilter(); } }
-
 /* ================================================================
    TX LIST COMPONENT
    ================================================================ */
