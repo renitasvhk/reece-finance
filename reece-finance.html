@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Reece~ Built strong financial with me</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ============================================================
+   REECE FINANCE — CSS Variables & Base
+   ============================================================ */
+:root {
+  --bg: #f7f8fc;
+  --surface: #ffffff;
+  --surface2: #f0f2f9;
+  --border: #e4e7f0;
+  --accent: #6c8eff;
+  --accent2: #a0b4ff;
+  --accent-soft: #eef1ff;
+  --income: #3ec9a7;
+  --income-soft: #e8faf5;
+  --expense: #ff7c7c;
+  --expense-soft: #fff0f0;
+  --transfer: #f5a623;
+  --transfer-soft: #fff8ec;
+  --invest: #7c5cbf;
+  --invest-soft: #f3effc;
+  --debt: #e85d75;
+  --debt-soft: #fdeef1;
+  --text: #1a1d2e;
+  --text2: #6b7280;
+  --text3: #9ca3af;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 2px 16px rgba(108,142,255,.08);
+  --shadow-md: 0 4px 32px rgba(108,142,255,.14);
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --sidebar-w: 220px;
+  --nav-h: 64px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+/* ---- Login Screen ---- */
+#login-screen {
+  position: fixed; inset: 0;
+  background: linear-gradient(135deg, #eef1ff 0%, #f7f8fc 50%, #e8faf5 100%);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  transition: opacity .4s;
+}
+#login-screen.hidden { opacity: 0; pointer-events: none; }
+
+.login-card {
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 380px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+}
+.login-logo {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -.5px;
+  margin-bottom: 8px;
+}
+.login-tagline {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 36px;
+}
+.login-field {
+  margin-bottom: 16px;
+}
+.login-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  margin-bottom: 6px;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+}
+.login-field input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  transition: border-color .2s;
+}
+.login-field input:focus { border-color: var(--accent); }
+.login-hint { font-size: 12px; color: var(--text3); margin-top: 12px; }
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+  margin-top: 8px;
+}
+.btn-primary:hover { background: #5a7aff; }
+.btn-primary:active { transform: scale(.98); }
+
+/* ---- App Shell ---- */
+#app { display: none; min-height: 100vh; }
+#app.active { display: flex; }
+
+/* ---- Sidebar ---- */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  padding: 0 0 24px;
+}
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .logo-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -.5px;
+  line-height: 1.2;
+}
+.sidebar-logo .logo-sub {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 2px;
+  letter-spacing: .4px;
+}
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 8px 8px 4px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text2);
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: var(--accent-soft); color: var(--accent); }
+.nav-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+.sidebar-bottom {
+  padding: 0 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+}
+.user-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.user-name { font-size: 13px; font-weight: 600; flex: 1; }
+.btn-logout {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text3);
+  font-size: 16px;
+  transition: color .2s;
+}
+.btn-logout:hover { color: var(--expense); }
+
+/* ---- Main Content ---- */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.topbar {
+  height: var(--nav-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.topbar-actions { display: flex; gap: 10px; align-items: center; }
+.btn-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  transition: background .2s;
+}
+.btn-icon:hover { background: var(--accent-soft); }
+
+.currency-select, .lang-select {
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  cursor: pointer;
+}
+
+.content-area {
+  padding: 28px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ---- Cards ---- */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+.card-sm { padding: 16px 20px; }
+
+/* ---- Stat Cards ---- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: transform .2s, box-shadow .2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-meta { font-size: 12px; color: var(--text2); }
+.stat-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+.stat-income .stat-icon { background: var(--income-soft); }
+.stat-income .stat-value { color: var(--income); }
+.stat-expense .stat-icon { background: var(--expense-soft); }
+.stat-expense .stat-value { color: var(--expense); }
+.stat-invest .stat-icon { background: var(--invest-soft); }
+.stat-invest .stat-value { color: var(--invest); }
+.stat-debt .stat-icon { background: var(--debt-soft); }
+.stat-debt .stat-value { color: var(--debt); }
+
+/* ---- Greeting ---- */
+.greeting-band {
+  background: linear-gradient(120deg, var(--accent-soft), #f0fff8);
+  border: 1px solid var(--accent2);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.greeting-text .g-hi { font-size: 20px; font-weight: 700; }
+.greeting-text .g-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.greeting-emoji { font-size: 36px; }
+
+/* ---- Section Headers ---- */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.btn-sm {
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background .2s;
+}
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent:hover { background: #5a7aff; }
+.btn-ghost { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--accent-soft); color: var(--accent); }
+
+/* ---- Transaction List ---- */
+.tx-list { display: flex; flex-direction: column; gap: 8px; }
+.tx-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: background .15s;
+  cursor: pointer;
+}
+.tx-item:hover { background: var(--surface2); }
+.tx-dot {
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.tx-info { flex: 1; min-width: 0; }
+.tx-title { font-weight: 600; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tx-meta { font-size: 12px; color: var(--text3); }
+.tx-amount { font-family: var(--mono); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.tx-amount.income { color: var(--income); }
+.tx-amount.expense { color: var(--expense); }
+.tx-amount.transfer { color: var(--transfer); }
+
+/* ---- Two-col layout ---- */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+
+/* ---- Badge ---- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-income { background: var(--income-soft); color: var(--income); }
+.badge-expense { background: var(--expense-soft); color: var(--expense); }
+.badge-transfer { background: var(--transfer-soft); color: var(--transfer); }
+.badge-invest { background: var(--invest-soft); color: var(--invest); }
+
+/* ---- Modal ---- */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(26,29,46,.35);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 28px;
+  width: 480px;
+  max-width: 95vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+  animation: slideUp .25s ease;
+}
+.modal-wide { width: 640px; }
+@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.modal-title { font-size: 17px; font-weight: 700; }
+.btn-close {
+  background: var(--surface2);
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.btn-close:hover { background: var(--expense-soft); color: var(--expense); }
+
+/* ---- Form Fields ---- */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-field { margin-bottom: 14px; }
+.form-field.full { grid-column: 1 / -1; }
+.form-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 13.5px;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  transition: border-color .2s;
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus { border-color: var(--accent); }
+.form-field textarea { resize: vertical; min-height: 80px; }
+
+/* ---- Tab type selector ---- */
+.type-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: var(--surface2);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+}
+.type-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  background: none;
+  color: var(--text2);
+}
+.type-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+.type-btn.income-btn.active { color: var(--income); }
+.type-btn.expense-btn.active { color: var(--expense); }
+.type-btn.transfer-btn.active { color: var(--transfer); }
+
+/* ---- Tabs (inner) ---- */
+.inner-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+.inner-tab {
+  padding: 8px 16px;
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  transition: color .2s, border-color .2s;
+  white-space: nowrap;
+}
+.inner-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ---- Progress Bar ---- */
+.progress-bar-wrap {
+  background: var(--surface2);
+  border-radius: 99px;
+  height: 8px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .4s ease;
+}
+
+/* ---- Table ---- */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+tbody td { padding: 11px 12px; border-bottom: 1px solid var(--border); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface2); }
+tbody tr { transition: background .15s; }
+
+/* ---- Investment Table ---- */
+.gain-pos { color: var(--income); font-weight: 600; }
+.gain-neg { color: var(--expense); font-weight: 600; }
+
+/* ---- Budget bars ---- */
+.budget-item { margin-bottom: 16px; }
+.budget-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.budget-cat { font-size: 13px; font-weight: 600; }
+.budget-nums { font-size: 12px; color: var(--text2); font-family: var(--mono); }
+.budget-warn { font-size: 11px; color: var(--expense); font-weight: 600; }
+
+/* ---- Recurring ---- */
+.recurring-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.recurring-item:last-child { border-bottom: none; }
+.recurring-dot {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  background: var(--surface2);
+}
+.recurring-info { flex: 1; }
+.recurring-name { font-weight: 600; font-size: 13.5px; }
+.recurring-meta { font-size: 12px; color: var(--text3); }
+.recurring-amount { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--expense); }
+
+/* ---- Notes ---- */
+.note-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 10px;
+  transition: box-shadow .2s;
+}
+.note-card:hover { box-shadow: var(--shadow); }
+.note-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.note-title { font-weight: 600; font-size: 13.5px; }
+.note-date { font-size: 11px; color: var(--text3); }
+.note-cat { font-size: 11px; color: var(--text2); margin-bottom: 6px; }
+.note-body { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+/* ---- Color Theme swatches ---- */
+.theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+.theme-swatch {
+  height: 52px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color .2s, transform .15s;
+}
+.theme-swatch:hover { transform: scale(1.04); }
+.theme-swatch.active { border-color: var(--accent); }
+
+/* ---- Chart container ---- */
+.chart-wrap { position: relative; height: 240px; }
+.chart-wrap-sm { position: relative; height: 180px; }
+
+/* ---- Period selector ---- */
+.period-bar {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.period-btn {
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .15s;
+}
+.period-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ---- Account selector pill ---- */
+.account-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.account-pill {
+  padding: 6px 16px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .15s;
+}
+.account-pill.active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+
+/* ---- Floaty FAB ---- */
+.fab {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(108,142,255,.4);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .2s, background .2s;
+  z-index: 200;
+}
+.fab:hover { transform: scale(1.1) rotate(45deg); background: #5a7aff; }
+
+/* ---- Divider ---- */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .three-col { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { transform: translateX(-100%); }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .three-col { grid-template-columns: 1fr; }
+}
+
+/* ---- Animations ---- */
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+.page { animation: fadeIn .25s ease; }
+
+/* ---- Toast ---- */
+.toast {
+  position: fixed;
+  bottom: 80px; right: 28px;
+  background: var(--text);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 999;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all .3s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- ====== LOGIN SCREEN ====== -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Reece~</div>
+    <div class="login-tagline">Built strong financial with me ✦</div>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="Masukkan nama" value="Rea"/>
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Password" value="1234"/>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Masuk →</button>
+    <div class="login-hint">💡 Default: username bebas, password: 1234</div>
+  </div>
+</div>
+
+<!-- ====== MAIN APP ====== -->
+<div id="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-name">Reece~</div>
+      <div class="logo-sub">YOUR FINANCIAL COMPANION</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-item active" onclick="showPage('home',this)">
+        <span class="nav-icon">🏠</span> <span id="nav-home">Home</span>
+      </div>
+      <div class="nav-item" onclick="showPage('analytic',this)">
+        <span class="nav-icon">📊</span> <span id="nav-analytic">Analytic</span>
+      </div>
+      <div class="nav-item" onclick="showPage('budget',this)">
+        <span class="nav-icon">🎯</span> <span id="nav-budget">Budget</span>
+      </div>
+      <div class="nav-section-label" style="margin-top:8px;">Keuangan</div>
+      <div class="nav-item" onclick="showPage('investment',this)">
+        <span class="nav-icon">📈</span> <span id="nav-investment">Investasi</span>
+      </div>
+      <div class="nav-item" onclick="showPage('recurring',this)">
+        <span class="nav-icon">🔁</span> <span id="nav-recurring">Auto Debet</span>
+      </div>
+      <div class="nav-section-label" style="margin-top:8px;">Lainnya</div>
+      <div class="nav-item" onclick="showPage('notes',this)">
+        <span class="nav-icon">📝</span> <span id="nav-notes">Catatan</span>
+      </div>
+      <div class="nav-item" onclick="showPage('settings',this)">
+        <span class="nav-icon">⚙️</span> <span id="nav-settings">Pengaturan</span>
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-pill">
+        <div class="user-avatar" id="sidebar-avatar">R</div>
+        <div class="user-name" id="sidebar-username">Rea</div>
+        <button class="btn-logout" onclick="doLogout()" title="Logout">↩</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-actions">
+        <select class="currency-select" id="currency-select" onchange="setCurrency(this.value)">
+          <option value="JPY">¥ JPY</option>
+          <option value="USD">$ USD</option>
+          <option value="IDR">Rp IDR</option>
+        </select>
+        <select class="lang-select" id="lang-select" onchange="setLang(this.value)">
+          <option value="id">🇮🇩 Indonesia</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="ja">🇯🇵 日本語</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="content-area" id="content-area">
+      <!-- Pages injected here -->
+    </div>
+  </main>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openTxModal()" title="Tambah transaksi" id="fab-btn">+</button>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ====== TRANSACTION MODAL ====== -->
+<div class="modal-overlay" id="tx-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="tx-modal-title">Tambah Transaksi</div>
+      <button class="btn-close" onclick="closeTxModal()">✕</button>
+    </div>
+    <div class="type-selector">
+      <button class="type-btn income-btn active" onclick="setTxType('income',this)">💚 Pemasukan</button>
+      <button class="type-btn expense-btn" onclick="setTxType('expense',this)">❤️ Pengeluaran</button>
+      <button class="type-btn transfer-btn" onclick="setTxType('transfer',this)">💛 Transfer</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-field full">
+        <label>Nominal</label>
+        <input type="number" id="tx-amount" placeholder="0" min="0"/>
+      </div>
+      <div class="form-field" id="tx-from-wrap">
+        <label>Dari Akun</label>
+        <select id="tx-from-account"></select>
+      </div>
+      <div class="form-field" id="tx-to-wrap">
+        <label>Ke Akun</label>
+        <select id="tx-to-account"></select>
+      </div>
+      <div class="form-field" id="tx-cat-wrap">
+        <label>Kategori</label>
+        <select id="tx-category"></select>
+      </div>
+      <div class="form-field">
+        <label>Tanggal</label>
+        <input type="date" id="tx-date"/>
+      </div>
+      <div class="form-field full">
+        <label>Catatan</label>
+        <input type="text" id="tx-note" placeholder="Opsional..."/>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveTx()">Simpan Transaksi</button>
+  </div>
+</div>
+
+<!-- ====== INVESTMENT MODAL ====== -->
+<div class="modal-overlay" id="inv-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Tambah Investasi</div>
+      <button class="btn-close" onclick="closeModal('inv-modal')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Kode (e.g. 7203.T)</label>
+        <input type="text" id="inv-code" placeholder="Kode ticker"/>
+      </div>
+      <div class="form-field">
+        <label>Nama Aset</label>
+        <input type="text" id="inv-name" placeholder="e.g. Toyota Motor"/>
+      </div>
+      <div class="form-field">
+        <label>Tipe</label>
+        <select id="inv-type">
+          <option>Stock</option>
+          <option>ETF</option>
+          <option>Reksa Dana</option>
+          <option>Crypto</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Jumlah Lot/Unit</label>
+        <input type="number" id="inv-lot" placeholder="0" min="1"/>
+      </div>
+      <div class="form-field">
+        <label>Harga Beli (avg)</label>
+        <input type="number" id="inv-buy" placeholder="0"/>
+      </div>
+      <div class="form-field">
+        <label>Harga Sekarang</label>
+        <input type="number" id="inv-current" placeholder="0"/>
+      </div>
+      <div class="form-field">
+        <label>Tanggal Beli</label>
+        <input type="date" id="inv-date"/>
+      </div>
+      <div class="form-field">
+        <label>Akun</label>
+        <select id="inv-account"></select>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveInvestment()">Simpan</button>
+  </div>
+</div>
+
+<!-- ====== RECURRING MODAL ====== -->
+<div class="modal-overlay" id="rec-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Tambah Auto Debet / Tagihan Rutin</div>
+      <button class="btn-close" onclick="closeModal('rec-modal')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-field full">
+        <label>Nama Tagihan</label>
+        <input type="text" id="rec-name" placeholder="e.g. Sewa Apartemen"/>
+      </div>
+      <div class="form-field">
+        <label>Nominal Utama</label>
+        <input type="number" id="rec-amount" placeholder="40000"/>
+      </div>
+      <div class="form-field">
+        <label>Biaya Admin</label>
+        <input type="number" id="rec-admin" placeholder="550"/>
+      </div>
+      <div class="form-field">
+        <label>Tanggal Jatuh Tempo</label>
+        <input type="number" id="rec-day" placeholder="27" min="1" max="31"/>
+      </div>
+      <div class="form-field">
+        <label>Dari Akun</label>
+        <select id="rec-account"></select>
+      </div>
+      <div class="form-field">
+        <label>Kategori</label>
+        <select id="rec-category"></select>
+      </div>
+      <div class="form-field full">
+        <label>Tipe</label>
+        <select id="rec-type">
+          <option value="monthly">Bulanan</option>
+          <option value="credit">Credit Card (tutup buku)</option>
+          <option value="weekly">Mingguan</option>
+        </select>
+      </div>
+      <div id="cc-wrap" class="form-field full" style="display:none;">
+        <label>Detail Credit Card</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <input type="number" id="cc-close" placeholder="Tutup buku tgl (16)" min="1" max="31"/>
+          <input type="number" id="cc-pay" placeholder="Payment tgl (11)" min="1" max="31"/>
+        </div>
+        <small style="color:var(--text3);margin-top:4px;display:block;">Tutup buku tgl 16 → bayar tgl 11 bulan berikutnya</small>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveRecurring()">Simpan</button>
+  </div>
+</div>
+
+<!-- ====== NOTE MODAL ====== -->
+<div class="modal-overlay" id="note-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Tambah Catatan</div>
+      <button class="btn-close" onclick="closeModal('note-modal')">✕</button>
+    </div>
+    <div class="form-field">
+      <label>Judul</label>
+      <input type="text" id="note-title" placeholder="Judul evaluasi..."/>
+    </div>
+    <div class="form-field">
+      <label>Tanggal</label>
+      <input type="date" id="note-date"/>
+    </div>
+    <div class="form-field">
+      <label>Kategori</label>
+      <input type="text" id="note-cat" placeholder="e.g. Pengeluaran, Tujuan..."/>
+    </div>
+    <div class="form-field">
+      <label>Isi Catatan</label>
+      <textarea id="note-body" placeholder="Tulis evaluasi keuanganmu..."></textarea>
+    </div>
+    <button class="btn-primary" onclick="saveNote()">Simpan Catatan</button>
+  </div>
+</div>
+
+<!-- ====== BUDGET MODAL ====== -->
+<div class="modal-overlay" id="budget-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Atur Budget Kategori</div>
+      <button class="btn-close" onclick="closeModal('budget-modal')">✕</button>
+    </div>
+    <div id="budget-form-list"></div>
+    <button class="btn-primary" onclick="saveBudgets()">Simpan Budget</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   REECE FINANCE — Main JavaScript
+   ============================================================ */
+
+// ---- State ----
+let state = JSON.parse(localStorage.getItem('reece_state') || 'null') || {
+  loggedIn: false,
+  username: 'Rea',
+  currency: 'JPY',
+  lang: 'id',
+  theme: 'default',
+  accounts: [
+    { id: 'cash', name: 'Cash', balance: 50000, icon: '💵' },
+    { id: 'bank', name: 'Bank (UFJ)', balance: 300000, icon: '🏦' },
+    { id: 'cc', name: 'Credit Card', balance: 0, icon: '💳', isCc: true },
+  ],
+  categories: {
+    income: ['Gaji', 'Bonus', 'Investasi', 'Freelance', 'Lainnya'],
+    expense: ['Makanan', 'Transport', 'Sewa', 'Utilitas', 'Belanja', 'Kesehatan', 'Hiburan', 'Pendidikan', 'Lainnya'],
+  },
+  transactions: [
+    { id: 1, type: 'income', amount: 280000, account: 'bank', category: 'Gaji', date: '2025-04-01', note: 'Gaji April' },
+    { id: 2, type: 'expense', amount: 40550, account: 'bank', category: 'Sewa', date: '2025-04-27', note: 'Sewa + admin' },
+    { id: 3, type: 'expense', amount: 8500, account: 'cash', category: 'Makanan', date: '2025-04-10', note: 'Makan siang' },
+    { id: 4, type: 'transfer', amount: 30000, fromAccount: 'bank', toAccount: 'cash', date: '2025-04-05', note: 'Tarik tunai' },
+  ],
+  investments: [
+    { id: 1, code: '7203.T', name: 'Toyota Motor', type: 'Stock', lot: 1, buyPrice: 2800, currentPrice: 3100, date: '2024-10-01', account: 'bank' },
+    { id: 2, code: 'eMAXIS', name: 'eMAXIS Slim S&P500', type: 'ETF', lot: 5, buyPrice: 21000, currentPrice: 23500, date: '2024-08-15', account: 'bank' },
+  ],
+  recurringItems: [
+    { id: 1, name: 'Sewa Apartemen', amount: 40000, admin: 550, day: 27, account: 'bank', category: 'Sewa', type: 'monthly' },
+    { id: 2, name: 'Credit Card UFJ', amount: 0, admin: 0, day: 11, account: 'bank', category: 'Belanja', type: 'credit', ccClose: 16, ccPay: 11 },
+  ],
+  notes: [
+    { id: 1, title: 'Review Pengeluaran April', date: '2025-04-30', cat: 'Evaluasi', body: 'Pengeluaran bulan ini masih dalam batas. Sewa dan makan sudah oke. Perlu kurangi hiburan.' },
+  ],
+  budgets: { 'Makanan': 20000, 'Transport': 10000, 'Sewa': 45000, 'Hiburan': 8000 },
+  txIdCounter: 10,
+};
+
+function save() { localStorage.setItem('reece_state', JSON.stringify(state)); }
+
+// ---- Currency & Lang ----
+const CURR_SYMBOLS = { JPY: '¥', USD: '$', IDR: 'Rp ' };
+const CURR_RATES = { JPY: 1, USD: 0.0067, IDR: 153 }; // approximate from JPY
+
+function fmt(amount) {
+  const converted = amount * CURR_RATES[state.currency];
+  const sym = CURR_SYMBOLS[state.currency];
+  if (state.currency === 'JPY') return sym + Math.round(converted).toLocaleString();
+  if (state.currency === 'IDR') return sym + Math.round(converted).toLocaleString();
+  return sym + converted.toFixed(2);
+}
+
+const LABELS = {
+  id: {
+    home: 'Beranda', analytic: 'Analitik', budget: 'Budget', investment: 'Investasi',
+    recurring: 'Auto Debet', notes: 'Catatan', settings: 'Pengaturan',
+    greet_morning: 'Selamat pagi', greet_afternoon: 'Selamat siang',
+    greet_evening: 'Selamat malam', greet_sub: 'Keuanganmu hari ini terlihat bagus! ✨',
+    income: 'Pemasukan', expense: 'Pengeluaran', transfer: 'Transfer',
+    investment_label: 'Total Investasi', debt: 'Hutang/Tagihan',
+  },
+  en: {
+    home: 'Home', analytic: 'Analytics', budget: 'Budget', investment: 'Investment',
+    recurring: 'Auto Debit', notes: 'Notes', settings: 'Settings',
+    greet_morning: 'Good morning', greet_afternoon: 'Good afternoon',
+    greet_evening: 'Good evening', greet_sub: 'Your finances look great today! ✨',
+    income: 'Income', expense: 'Expense', transfer: 'Transfer',
+    investment_label: 'Total Investment', debt: 'Debt/Bills',
+  },
+  ja: {
+    home: 'ホーム', analytic: '分析', budget: '予算', investment: '投資',
+    recurring: '自動引き落とし', notes: 'メモ', settings: '設定',
+    greet_morning: 'おはようございます', greet_afternoon: 'こんにちは',
+    greet_evening: 'こんばんは', greet_sub: '今日の家計も順調です！✨',
+    income: '収入', expense: '支出', transfer: '振替',
+    investment_label: '投資合計', debt: '借金/請求',
+  }
+};
+function L(key) { return (LABELS[state.lang] || LABELS.id)[key] || key; }
+
+function greetWord() {
+  const h = new Date().getHours();
+  if (h < 12) return L('greet_morning');
+  if (h < 17) return L('greet_afternoon');
+  return L('greet_evening');
+}
+
+// ---- Login ----
+function doLogin() {
+  const pass = document.getElementById('login-pass').value;
+  const user = document.getElementById('login-user').value.trim() || 'Rea';
+  if (pass === '1234') {
+    state.loggedIn = true;
+    state.username = user;
+    save();
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').classList.add('active');
+    document.getElementById('sidebar-username').textContent = user;
+    document.getElementById('sidebar-avatar').textContent = user[0].toUpperCase();
+    applyLang();
+    applyCurrency();
+    showPage('home', document.querySelector('.nav-item'));
+  } else {
+    showToast('❌ Password salah! Coba: 1234');
+  }
+}
+function doLogout() {
+  state.loggedIn = false;
+  save();
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('app').classList.remove('active');
+}
+
+// ---- Page Routing ----
+let currentPage = 'home';
+function showPage(page, el) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const titles = { home: L('home'), analytic: L('analytic'), budget: L('budget'), investment: L('investment'), recurring: L('recurring'), notes: L('notes'), settings: L('settings') };
+  document.getElementById('page-title').textContent = titles[page] || page;
+  const fab = document.getElementById('fab-btn');
+  fab.style.display = ['home','analytic'].includes(page) ? 'flex' : 'none';
+  const area = document.getElementById('content-area');
+  area.innerHTML = '';
+  const pages = { home: renderHome, analytic: renderAnalytic, budget: renderBudget, investment: renderInvestment, recurring: renderRecurring, notes: renderNotes, settings: renderSettings };
+  if (pages[page]) pages[page](area);
+}
+
+// ---- HOME PAGE ----
+function renderHome(area) {
+  const txs = state.transactions;
+  const totalIncome = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const totalExpense = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const totalTransfer = txs.filter(t=>t.type==='transfer').reduce((s,t)=>s+t.amount,0);
+  const totalInvest = state.investments.reduce((s,i)=>s+(i.currentPrice*i.lot),0);
+  const totalDebt = state.recurringItems.filter(r=>r.type!=='credit').reduce((s,r)=>s+(r.amount+r.admin),0);
+
+  area.innerHTML = `
+  <div class="page">
+    <!-- Greeting -->
+    <div class="greeting-band">
+      <div class="greeting-text">
+        <div class="g-hi">${greetWord()}, ${state.username}! 👋</div>
+        <div class="g-sub">${L('greet_sub')}</div>
+      </div>
+      <div class="greeting-emoji">🌸</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-grid">
+      <div class="stat-card stat-income">
+        <div class="stat-icon">💚</div>
+        <div class="stat-label">${L('income')}</div>
+        <div class="stat-value">${fmt(totalIncome)}</div>
+        <div class="stat-meta">Total bulan ini</div>
+      </div>
+      <div class="stat-card stat-expense">
+        <div class="stat-icon">❤️</div>
+        <div class="stat-label">${L('expense')}</div>
+        <div class="stat-value">${fmt(totalExpense)}</div>
+        <div class="stat-meta">Total bulan ini</div>
+      </div>
+      <div class="stat-card stat-invest">
+        <div class="stat-icon">📈</div>
+        <div class="stat-label">${L('investment_label')}</div>
+        <div class="stat-value">${fmt(totalInvest)}</div>
+        <div class="stat-meta">${state.investments.length} aset</div>
+      </div>
+      <div class="stat-card stat-debt">
+        <div class="stat-icon">🔁</div>
+        <div class="stat-label">${L('debt')}</div>
+        <div class="stat-value">${fmt(totalDebt)}</div>
+        <div class="stat-meta">${state.recurringItems.length} tagihan rutin</div>
+      </div>
+    </div>
+
+    <!-- Accounts + Chart -->
+    <div class="two-col" style="margin-bottom:24px;">
+      <div class="card">
+        <div class="section-header"><div class="section-title">💳 Akun</div></div>
+        <div id="account-list">
+          ${state.accounts.map(a=>`
+          <div class="recurring-item">
+            <div class="recurring-dot">${a.icon}</div>
+            <div class="recurring-info">
+              <div class="recurring-name">${a.name}</div>
+              <div class="recurring-meta">${a.isCc?'Credit Card':'Simpanan'}</div>
+            </div>
+            <div class="recurring-amount" style="color:var(--text)">${fmt(a.balance)}</div>
+          </div>`).join('')}
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:700;font-size:13px;">Total Aset</span>
+          <span style="font-family:var(--mono);font-weight:700;font-size:16px;color:var(--accent)">${fmt(state.accounts.reduce((s,a)=>s+a.balance,0))}</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-header"><div class="section-title">📊 Ringkasan</div></div>
+        <div class="chart-wrap"><canvas id="home-donut"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">🧾 Transaksi Terbaru</div>
+        <button class="btn-sm btn-accent" onclick="openTxModal()">+ Tambah</button>
+      </div>
+      <div class="tx-list" id="home-tx-list">
+        ${renderTxList(txs.slice(-8).reverse())}
+      </div>
+    </div>
+  </div>`;
+
+  // Donut chart
+  const donutCtx = document.getElementById('home-donut').getContext('2d');
+  new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: [L('income'), L('expense'), L('transfer')],
+      datasets: [{
+        data: [totalIncome, totalExpense, totalTransfer],
+        backgroundColor: ['#3ec9a7','#ff7c7c','#f5a623'],
+        borderWidth: 0, hoverOffset: 6,
+      }]
+    },
+    options: { cutout: '70%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 12 }, boxWidth: 12 } } }, responsive: true, maintainAspectRatio: false }
+  });
+}
+
+function renderTxList(txs) {
+  if (!txs.length) return '<div style="text-align:center;padding:24px;color:var(--text3)">Belum ada transaksi</div>';
+  return txs.map(t => {
+    const isIncome = t.type === 'income';
+    const isTransfer = t.type === 'transfer';
+    const dot = isIncome ? '💚' : isTransfer ? '💛' : '❤️';
+    const bgColor = isIncome ? 'var(--income-soft)' : isTransfer ? 'var(--transfer-soft)' : 'var(--expense-soft)';
+    const amountClass = t.type;
+    const sign = isIncome ? '+' : isTransfer ? '↔' : '-';
+    const acc = isTransfer ? `${getAccountName(t.fromAccount)} → ${getAccountName(t.toAccount)}` : getAccountName(t.account);
+    return `<div class="tx-item">
+      <div class="tx-dot" style="background:${bgColor}">${dot}</div>
+      <div class="tx-info">
+        <div class="tx-title">${t.note || t.category || 'Transaksi'}</div>
+        <div class="tx-meta">${t.date} · ${acc}</div>
+      </div>
+      <div class="tx-amount ${amountClass}">${sign}${fmt(t.amount)}</div>
+    </div>`;
+  }).join('');
+}
+
+function getAccountName(id) {
+  const a = state.accounts.find(a=>a.id===id);
+  return a ? a.name : id || '-';
+}
+
+// ---- ANALYTIC PAGE ----
+function renderAnalytic(area) {
+  area.innerHTML = `
+  <div class="page">
+    <div class="period-bar">
+      <button class="period-btn active" onclick="setPeriod('weekly',this)">Mingguan</button>
+      <button class="period-btn" onclick="setPeriod('monthly',this)">Bulanan</button>
+      <button class="period-btn" onclick="setPeriod('yearly',this)">Tahunan</button>
+      <button class="period-btn" onclick="setPeriod('all',this)">Semua</button>
+      <button class="period-btn" onclick="setPeriod('custom',this)">Custom</button>
+    </div>
+    <div id="custom-date-range" style="display:none;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
+      <input type="date" id="custom-start" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font)"/>
+      <span style="color:var(--text2)">—</span>
+      <input type="date" id="custom-end" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font)"/>
+      <button class="btn-sm btn-accent" onclick="applyCustomPeriod()">Terapkan</button>
+    </div>
+
+    <!-- Account Status -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="section-header"><div class="section-title">📊 Status Akun</div></div>
+      <div class="account-pills">
+        ${state.accounts.map((a,i)=>`<div class="account-pill ${i===0?'active':''}" onclick="toggleAccountPill(this,'${a.id}')">${a.icon} ${a.name}</div>`).join('')}
+      </div>
+      <div class="chart-wrap"><canvas id="account-bar"></canvas></div>
+    </div>
+
+    <div class="two-col">
+      <!-- Income by category -->
+      <div class="card">
+        <div class="section-header"><div class="section-title">💚 Pemasukan per Kategori</div></div>
+        <div class="chart-wrap-sm"><canvas id="income-pie"></canvas></div>
+      </div>
+      <!-- Expense by category -->
+      <div class="card">
+        <div class="section-header"><div class="section-title">❤️ Pengeluaran per Kategori</div></div>
+        <div class="chart-wrap-sm"><canvas id="expense-pie"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Monthly trend -->
+    <div class="card" style="margin-top:20px;">
+      <div class="section-header"><div class="section-title">📈 Tren Bulanan</div></div>
+      <div class="chart-wrap"><canvas id="trend-bar"></canvas></div>
+    </div>
+
+    <!-- Transaction table -->
+    <div class="card" style="margin-top:20px;">
+      <div class="section-header"><div class="section-title">🧾 Semua Transaksi</div></div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr><th>Tanggal</th><th>Tipe</th><th>Kategori</th><th>Akun</th><th>Catatan</th><th>Nominal</th><th></th></tr>
+          </thead>
+          <tbody id="analytic-table">
+            ${state.transactions.slice().reverse().map(t=>`
+            <tr>
+              <td>${t.date}</td>
+              <td><span class="badge badge-${t.type}">${t.type==='income'?L('income'):t.type==='expense'?L('expense'):L('transfer')}</span></td>
+              <td>${t.category||'-'}</td>
+              <td>${t.type==='transfer'?`${getAccountName(t.fromAccount)}→${getAccountName(t.toAccount)}`:getAccountName(t.account)}</td>
+              <td>${t.note||'-'}</td>
+              <td style="font-family:var(--mono);font-weight:600;color:${t.type==='income'?'var(--income)':t.type==='expense'?'var(--expense)':'var(--transfer)'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</td>
+              <td><button onclick="deleteTx(${t.id})" style="background:none;border:none;cursor:pointer;color:var(--expense);font-size:14px;">🗑</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+
+  drawAnalyticCharts(state.transactions);
+}
+
+let activePeriod = 'monthly';
+function setPeriod(period, btn) {
+  activePeriod = period;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const cdiv = document.getElementById('custom-date-range');
+  if (cdiv) cdiv.style.display = period === 'custom' ? 'flex' : 'none';
+  if (period !== 'custom') drawAnalyticCharts(filterByPeriod(state.transactions, period));
+}
+function applyCustomPeriod() {
+  const s = document.getElementById('custom-start').value;
+  const e = document.getElementById('custom-end').value;
+  const filtered = state.transactions.filter(t => (!s||t.date>=s) && (!e||t.date<=e));
+  drawAnalyticCharts(filtered);
+}
+function filterByPeriod(txs, period) {
+  const now = new Date();
+  return txs.filter(t => {
+    const d = new Date(t.date);
+    if (period === 'weekly') { const diff = (now-d)/86400000; return diff<=7; }
+    if (period === 'monthly') return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    if (period === 'yearly') return d.getFullYear()===now.getFullYear();
+    return true;
+  });
+}
+
+function toggleAccountPill(el, id) {
+  document.querySelectorAll('.account-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function drawAnalyticCharts(txs) {
+  // Income Pie
+  const incTx = txs.filter(t=>t.type==='income');
+  const incCats = {}; incTx.forEach(t=>{ incCats[t.category]=(incCats[t.category]||0)+t.amount; });
+  const incPieCtx = document.getElementById('income-pie');
+  if (incPieCtx) new Chart(incPieCtx, {
+    type:'doughnut', data:{labels:Object.keys(incCats), datasets:[{data:Object.values(incCats),backgroundColor:['#3ec9a7','#6c8eff','#a0b4ff','#7c5cbf','#f5a623'],borderWidth:0}]},
+    options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},boxWidth:10}}}}
+  });
+
+  // Expense Pie
+  const expTx = txs.filter(t=>t.type==='expense');
+  const expCats = {}; expTx.forEach(t=>{ expCats[t.category]=(expCats[t.category]||0)+t.amount; });
+  const expPieCtx = document.getElementById('expense-pie');
+  if (expPieCtx) new Chart(expPieCtx, {
+    type:'doughnut', data:{labels:Object.keys(expCats), datasets:[{data:Object.values(expCats),backgroundColor:['#ff7c7c','#ff9d9d','#ffb8b8','#e85d75','#f5a623','#7c5cbf','#6c8eff'],borderWidth:0}]},
+    options:{cutout:'65%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11},boxWidth:10}}}}
+  });
+
+  // Trend bar
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const byMonth = Array(12).fill(0).map(()=>({inc:0,exp:0}));
+  state.transactions.forEach(t=>{
+    const m = new Date(t.date).getMonth();
+    if(t.type==='income') byMonth[m].inc+=t.amount;
+    if(t.type==='expense') byMonth[m].exp+=t.amount;
+  });
+  const trendCtx = document.getElementById('trend-bar');
+  if (trendCtx) new Chart(trendCtx, {
+    type:'bar', data:{labels:months, datasets:[
+      {label:L('income'),data:byMonth.map(m=>m.inc),backgroundColor:'rgba(62,201,167,.7)',borderRadius:6},
+      {label:L('expense'),data:byMonth.map(m=>m.exp),backgroundColor:'rgba(255,124,124,.7)',borderRadius:6},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{grid:{display:false}},y:{grid:{color:'var(--border)'}}}}
+  });
+
+  // Account bar
+  const accBarCtx = document.getElementById('account-bar');
+  if (accBarCtx) new Chart(accBarCtx, {
+    type:'bar', data:{labels:state.accounts.map(a=>a.name), datasets:[{label:'Saldo',data:state.accounts.map(a=>a.balance),backgroundColor:['rgba(108,142,255,.7)','rgba(62,201,167,.7)','rgba(245,166,35,.7)'],borderRadius:8}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'var(--border)'}}},indexAxis:'y'}
+  });
+}
+
+// ---- BUDGET PAGE ----
+function renderBudget(area) {
+  const expCats = state.categories.expense;
+  const thisMonth = state.transactions.filter(t=>{
+    const d=new Date(t.date); const n=new Date();
+    return t.type==='expense' && d.getMonth()===n.getMonth() && d.getFullYear()===n.getFullYear();
+  });
+  const spent = {};
+  thisMonth.forEach(t=>{ spent[t.category]=(spent[t.category]||0)+t.amount; });
+
+  area.innerHTML = `
+  <div class="page">
+    <div class="section-header">
+      <div class="section-title">🎯 Budget Bulan Ini</div>
+      <button class="btn-sm btn-accent" onclick="openBudgetModal()">Edit Budget</button>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+      ${Object.entries(state.budgets).map(([cat,budget])=>{
+        const s = spent[cat]||0;
+        const pct = Math.min(100, Math.round((s/budget)*100));
+        const color = pct>=90?'var(--expense)':pct>=70?'var(--transfer)':'var(--income)';
+        return `<div class="budget-item">
+          <div class="budget-item-header">
+            <div class="budget-cat">${cat}</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              ${pct>=90?'<span class="budget-warn">⚠️ Hampir habis!</span>':''}
+              <div class="budget-nums">${fmt(s)} / ${fmt(budget)}</div>
+            </div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:${pct}%;background:${color}"></div>
+          </div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px;">${pct}% terpakai · sisa ${fmt(budget-s)}</div>
+        </div>`;
+      }).join('')}
+      ${Object.keys(state.budgets).length===0?'<div style="text-align:center;padding:24px;color:var(--text3)">Belum ada budget. Klik Edit Budget.</div>':''}
+    </div>
+
+    <!-- Budget chart -->
+    <div class="card">
+      <div class="section-title" style="margin-bottom:16px;">📊 Visualisasi Budget</div>
+      <div class="chart-wrap"><canvas id="budget-chart"></canvas></div>
+    </div>
+  </div>`;
+
+  const ctx = document.getElementById('budget-chart');
+  if (ctx && Object.keys(state.budgets).length > 0) {
+    new Chart(ctx, {
+      type:'bar', data:{
+        labels:Object.keys(state.budgets),
+        datasets:[
+          {label:'Budget',data:Object.values(state.budgets),backgroundColor:'rgba(108,142,255,.2)',borderColor:'rgba(108,142,255,.7)',borderWidth:2,borderRadius:6},
+          {label:'Terpakai',data:Object.keys(state.budgets).map(c=>spent[c]||0),backgroundColor:'rgba(255,124,124,.6)',borderRadius:6},
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{grid:{display:false}},y:{grid:{color:'var(--border)'}}}}
+    });
+  }
+}
+
+function openBudgetModal() {
+  const list = document.getElementById('budget-form-list');
+  list.innerHTML = state.categories.expense.map(cat=>`
+    <div class="form-field">
+      <label>${cat}</label>
+      <input type="number" id="budget-${cat}" placeholder="0" value="${state.budgets[cat]||''}"/>
+    </div>`).join('');
+  openModal('budget-modal');
+}
+function saveBudgets() {
+  state.categories.expense.forEach(cat=>{
+    const v = parseFloat(document.getElementById('budget-'+cat)?.value||0);
+    if(v>0) state.budgets[cat]=v;
+    else delete state.budgets[cat];
+  });
+  save(); closeModal('budget-modal'); showPage('budget', null); showToast('✅ Budget disimpan!');
+}
+
+// ---- INVESTMENT PAGE ----
+function renderInvestment(area) {
+  const total = state.investments.reduce((s,i)=>s+(i.currentPrice*i.lot),0);
+  const cost = state.investments.reduce((s,i)=>s+(i.buyPrice*i.lot),0);
+  const gain = total - cost;
+  const gainPct = cost > 0 ? ((gain/cost)*100).toFixed(1) : 0;
+
+  area.innerHTML = `
+  <div class="page">
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+      <div class="stat-card stat-invest">
+        <div class="stat-icon">💼</div>
+        <div class="stat-label">Nilai Portfolio</div>
+        <div class="stat-value">${fmt(total)}</div>
+        <div class="stat-meta">${state.investments.length} aset</div>
+      </div>
+      <div class="stat-card" style="${gain>=0?'':''}">
+        <div class="stat-icon" style="background:${gain>=0?'var(--income-soft)':'var(--expense-soft)'}">
+          ${gain>=0?'📈':'📉'}
+        </div>
+        <div class="stat-label">Gain / Loss</div>
+        <div class="stat-value" style="color:${gain>=0?'var(--income)':'var(--expense)'}">${gain>=0?'+':''}${fmt(gain)}</div>
+        <div class="stat-meta">${gainPct}% dari modal</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:var(--surface2)">💰</div>
+        <div class="stat-label">Modal Investasi</div>
+        <div class="stat-value" style="color:var(--text)">${fmt(cost)}</div>
+        <div class="stat-meta">Total diinvestasikan</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">📈 Portofolio Investasi</div>
+        <button class="btn-sm btn-accent" onclick="openModal('inv-modal');fillInvAccountSelect()">+ Tambah</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr><th>Kode</th><th>Nama</th><th>Tipe</th><th>Lot</th><th>Harga Beli</th><th>Harga Saat Ini</th><th>Nilai</th><th>Gain/Loss</th><th></th></tr>
+          </thead>
+          <tbody>
+            ${state.investments.map(i=>{
+              const g = (i.currentPrice-i.buyPrice)*i.lot;
+              const gp = (((i.currentPrice-i.buyPrice)/i.buyPrice)*100).toFixed(1);
+              return `<tr>
+                <td style="font-family:var(--mono);font-weight:600">${i.code}</td>
+                <td>${i.name}</td>
+                <td><span class="badge badge-invest">${i.type}</span></td>
+                <td>${i.lot}</td>
+                <td style="font-family:var(--mono)">${fmt(i.buyPrice)}</td>
+                <td style="font-family:var(--mono)">${fmt(i.currentPrice)}</td>
+                <td style="font-family:var(--mono);font-weight:600">${fmt(i.currentPrice*i.lot)}</td>
+                <td class="${g>=0?'gain-pos':'gain-neg'}">${g>=0?'+':''}${fmt(g)} (${gp}%)</td>
+                <td>
+                  <button onclick="deleteInvestment(${i.id})" style="background:none;border:none;cursor:pointer;color:var(--expense)">🗑</button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Portfolio donut -->
+    <div class="card" style="margin-top:20px;">
+      <div class="section-title" style="margin-bottom:16px;">📊 Distribusi Portfolio</div>
+      <div class="chart-wrap"><canvas id="inv-donut"></canvas></div>
+    </div>
+  </div>`;
+
+  fillInvAccountSelect();
+  const ctx = document.getElementById('inv-donut');
+  if (ctx && state.investments.length > 0) {
+    new Chart(ctx, {
+      type:'doughnut', data:{labels:state.investments.map(i=>i.code), datasets:[{data:state.investments.map(i=>i.currentPrice*i.lot),backgroundColor:['#6c8eff','#3ec9a7','#f5a623','#7c5cbf','#ff7c7c','#e85d75'],borderWidth:0}]},
+      options:{cutout:'60%',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{family:'DM Sans',size:12},boxWidth:12}}}}
+    });
+  }
+}
+
+function fillInvAccountSelect() {
+  const sel = document.getElementById('inv-account');
+  if (sel) sel.innerHTML = state.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+}
+
+function saveInvestment() {
+  const inv = {
+    id: Date.now(),
+    code: document.getElementById('inv-code').value,
+    name: document.getElementById('inv-name').value,
+    type: document.getElementById('inv-type').value,
+    lot: parseFloat(document.getElementById('inv-lot').value)||1,
+    buyPrice: parseFloat(document.getElementById('inv-buy').value)||0,
+    currentPrice: parseFloat(document.getElementById('inv-current').value)||0,
+    date: document.getElementById('inv-date').value,
+    account: document.getElementById('inv-account').value,
+  };
+  state.investments.push(inv);
+  save(); closeModal('inv-modal'); showPage('investment', null); showToast('✅ Investasi ditambahkan!');
+}
+
+function deleteInvestment(id) {
+  state.investments = state.investments.filter(i=>i.id!==id);
+  save(); showPage('investment', null); showToast('🗑 Investasi dihapus');
+}
+
+// ---- RECURRING PAGE ----
+function renderRecurring(area) {
+  area.innerHTML = `
+  <div class="page">
+    <div class="section-header" style="margin-bottom:20px;">
+      <div class="section-title">🔁 Auto Debet & Tagihan Rutin</div>
+      <button class="btn-sm btn-accent" onclick="openRecModal()">+ Tambah</button>
+    </div>
+
+    ${state.recurringItems.map(r=>{
+      const nextDate = getNextDueDate(r);
+      return `<div class="card card-sm" style="margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="recurring-dot">${r.type==='credit'?'💳':'🏠'}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:14px;">${r.name}</div>
+            <div style="font-size:12px;color:var(--text3);">
+              ${r.type==='credit'?`Tutup buku tgl ${r.ccClose} → Bayar tgl ${r.ccPay} bulan berikutnya`:
+              `Jatuh tempo: tgl ${r.day} setiap bulan`}
+            </div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px;">📅 Berikutnya: ${nextDate} · Akun: ${getAccountName(r.account)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:var(--mono);font-weight:700;font-size:15px;color:var(--expense)">${fmt(r.amount+r.admin)}</div>
+            ${r.admin>0?`<div style="font-size:11px;color:var(--text3);">+${fmt(r.admin)} admin</div>`:''}
+          </div>
+          <button onclick="deleteRecurring(${r.id})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;margin-left:8px;">🗑</button>
+        </div>
+      </div>`;
+    }).join('')}
+    ${state.recurringItems.length===0?'<div class="card" style="text-align:center;padding:40px;color:var(--text3)">Belum ada tagihan rutin. Tambahkan auto debet!</div>':''}
+
+    <!-- Calendar preview -->
+    <div class="card" style="margin-top:24px;">
+      <div class="section-title" style="margin-bottom:16px;">📅 Jadwal Tagihan Bulan Ini</div>
+      ${renderBillCalendar()}
+    </div>
+  </div>`;
+}
+
+function getNextDueDate(r) {
+  const now = new Date();
+  const day = r.type==='credit' ? r.ccPay : r.day;
+  let next = new Date(now.getFullYear(), now.getMonth(), day);
+  if (next <= now) next = new Date(now.getFullYear(), now.getMonth()+1, day);
+  return next.toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'});
+}
+
+function renderBillCalendar() {
+  const days = [];
+  state.recurringItems.forEach(r=>{
+    const day = r.type==='credit' ? r.ccPay : r.day;
+    days.push(`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <span style="font-family:var(--mono);font-weight:700;color:var(--accent);font-size:16px;">Tgl ${day}</span>
+        <span style="margin-left:12px;font-size:13px;font-weight:600;">${r.name}</span>
+      </div>
+      <span style="font-family:var(--mono);font-weight:700;color:var(--expense)">${fmt(r.amount+r.admin)}</span>
+    </div>`);
+  });
+  return days.sort().join('') || '<div style="color:var(--text3);padding:12px 0">Tidak ada tagihan</div>';
+}
+
+function openRecModal() {
+  const recAcc = document.getElementById('rec-account');
+  const recCat = document.getElementById('rec-category');
+  if (recAcc) recAcc.innerHTML = state.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  if (recCat) recCat.innerHTML = state.categories.expense.map(c=>`<option>${c}</option>`).join('');
+  document.getElementById('rec-type').onchange = function() {
+    document.getElementById('cc-wrap').style.display = this.value==='credit'?'block':'none';
+  };
+  openModal('rec-modal');
+}
+
+function saveRecurring() {
+  const r = {
+    id: Date.now(),
+    name: document.getElementById('rec-name').value,
+    amount: parseFloat(document.getElementById('rec-amount').value)||0,
+    admin: parseFloat(document.getElementById('rec-admin').value)||0,
+    day: parseInt(document.getElementById('rec-day').value)||1,
+    account: document.getElementById('rec-account').value,
+    category: document.getElementById('rec-category').value,
+    type: document.getElementById('rec-type').value,
+  };
+  if (r.type==='credit') {
+    r.ccClose = parseInt(document.getElementById('cc-close').value)||16;
+    r.ccPay = parseInt(document.getElementById('cc-pay').value)||11;
+  }
+  state.recurringItems.push(r);
+  save(); closeModal('rec-modal'); showPage('recurring', null); showToast('✅ Tagihan rutin ditambahkan!');
+}
+
+function deleteRecurring(id) {
+  state.recurringItems = state.recurringItems.filter(r=>r.id!==id);
+  save(); showPage('recurring', null); showToast('🗑 Dihapus');
+}
+
+// ---- NOTES PAGE ----
+function renderNotes(area) {
+  area.innerHTML = `
+  <div class="page">
+    <div class="section-header" style="margin-bottom:20px;">
+      <div class="section-title">📝 Catatan Evaluasi</div>
+      <button class="btn-sm btn-accent" onclick="openNoteModal()">+ Tambah</button>
+    </div>
+    ${state.notes.slice().reverse().map(n=>`
+    <div class="note-card">
+      <div class="note-header">
+        <div class="note-title">${n.title}</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="note-date">${n.date}</span>
+          <button onclick="deleteNote(${n.id})" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;">🗑</button>
+        </div>
+      </div>
+      <div class="note-cat">📁 ${n.cat}</div>
+      <div class="note-body">${n.body}</div>
+    </div>`).join('')}
+    ${state.notes.length===0?'<div class="card" style="text-align:center;padding:40px;color:var(--text3)">Belum ada catatan. Tulis evaluasi keuanganmu!</div>':''}
+  </div>`;
+}
+
+function openNoteModal() {
+  document.getElementById('note-date').value = new Date().toISOString().split('T')[0];
+  openModal('note-modal');
+}
+function saveNote() {
+  const n = {
+    id: Date.now(),
+    title: document.getElementById('note-title').value || 'Catatan',
+    date: document.getElementById('note-date').value,
+    cat: document.getElementById('note-cat').value || 'Umum',
+    body: document.getElementById('note-body').value,
+  };
+  state.notes.push(n);
+  document.getElementById('note-title').value='';
+  document.getElementById('note-cat').value='';
+  document.getElementById('note-body').value='';
+  save(); closeModal('note-modal'); showPage('notes', null); showToast('✅ Catatan disimpan!');
+}
+function deleteNote(id) {
+  state.notes = state.notes.filter(n=>n.id!==id);
+  save(); showPage('notes', null);
+}
+
+// ---- SETTINGS PAGE ----
+function renderSettings(area) {
+  area.innerHTML = `
+  <div class="page">
+    <div class="inner-tabs">
+      <div class="inner-tab active" onclick="showSettingTab('categories',this)">📁 Kategori</div>
+      <div class="inner-tab" onclick="showSettingTab('accounts',this)">💳 Akun</div>
+      <div class="inner-tab" onclick="showSettingTab('appearance',this)">🎨 Tampilan</div>
+      <div class="inner-tab" onclick="showSettingTab('export',this)">📤 Export / Import</div>
+      <div class="inner-tab" onclick="showSettingTab('reset',this)">⚠️ Reset</div>
+    </div>
+    <div id="setting-tab-content"></div>
+  </div>`;
+  showSettingTab('categories', document.querySelector('.inner-tab'));
+}
+
+function showSettingTab(tab, el) {
+  document.querySelectorAll('.inner-tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const c = document.getElementById('setting-tab-content');
+  if (tab==='categories') {
+    c.innerHTML = `
+    <div class="two-col">
+      <div class="card">
+        <div class="section-header"><div class="section-title">💚 Kategori Pemasukan</div>
+          <button class="btn-sm btn-accent" onclick="addCategory('income')">+ Tambah</button>
+        </div>
+        ${state.categories.income.map((cat,i)=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+          <span>${cat}</span>
+          <button onclick="deleteCategory('income',${i})" style="background:none;border:none;cursor:pointer;color:var(--expense);font-size:14px;">✕</button>
+        </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="section-header"><div class="section-title">❤️ Kategori Pengeluaran</div>
+          <button class="btn-sm btn-accent" onclick="addCategory('expense')">+ Tambah</button>
+        </div>
+        ${state.categories.expense.map((cat,i)=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+          <span>${cat}</span>
+          <button onclick="deleteCategory('expense',${i})" style="background:none;border:none;cursor:pointer;color:var(--expense);font-size:14px;">✕</button>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  } else if (tab==='accounts') {
+    c.innerHTML = `
+    <div class="card">
+      <div class="section-header"><div class="section-title">💳 Kelola Akun</div>
+        <button class="btn-sm btn-accent" onclick="addAccount()">+ Tambah Akun</button>
+      </div>
+      <table>
+        <thead><tr><th>Ikon</th><th>Nama</th><th>Saldo</th><th>Tipe</th><th></th></tr></thead>
+        <tbody>
+          ${state.accounts.map(a=>`
+          <tr>
+            <td>${a.icon}</td>
+            <td><b>${a.name}</b></td>
+            <td style="font-family:var(--mono)">${fmt(a.balance)}</td>
+            <td>${a.isCc?'Credit Card':'Simpanan'}</td>
+            <td><button onclick="deleteAccount('${a.id}')" style="background:none;border:none;cursor:pointer;color:var(--expense)">🗑</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  } else if (tab==='appearance') {
+    c.innerHTML = `
+    <div class="card">
+      <div class="section-title" style="margin-bottom:16px;">🎨 Tema Warna</div>
+      <div class="theme-grid">
+        ${[
+          {name:'Biru Soft',accent:'#6c8eff',bg:'#f7f8fc'},
+          {name:'Sage Green',accent:'#3ec9a7',bg:'#f4faf8'},
+          {name:'Lavender',accent:'#9b79e3',bg:'#f5f0fd'},
+          {name:'Rose',accent:'#e85d75',bg:'#fdf3f5'},
+          {name:'Amber',accent:'#f5a623',bg:'#fdfaf4'},
+          {name:'Slate',accent:'#64748b',bg:'#f5f6f9'},
+          {name:'Sky',accent:'#0ea5e9',bg:'#f0f9ff'},
+          {name:'Teal',accent:'#0d9488',bg:'#f0fdfa'},
+        ].map(t=>`
+        <div onclick="applyTheme('${t.accent}','${t.bg}')" title="${t.name}"
+          class="theme-swatch ${state.theme===t.accent?'active':''}"
+          style="background:linear-gradient(135deg,${t.bg} 40%,${t.accent} 100%)">
+        </div>`).join('')}
+      </div>
+      <div class="divider"></div>
+      <div class="section-title" style="margin-bottom:12px;">🌐 Bahasa</div>
+      <select class="currency-select" style="width:100%;margin-bottom:16px;" onchange="setLang(this.value)">
+        <option value="id" ${state.lang==='id'?'selected':''}>🇮🇩 Indonesia</option>
+        <option value="en" ${state.lang==='en'?'selected':''}>🇺🇸 English</option>
+        <option value="ja" ${state.lang==='ja'?'selected':''}>🇯🇵 日本語</option>
+      </select>
+      <div class="section-title" style="margin-bottom:12px;">💱 Mata Uang Default</div>
+      <select class="currency-select" style="width:100%;" onchange="setCurrency(this.value)">
+        <option value="JPY" ${state.currency==='JPY'?'selected':''}>¥ JPY — Yen Jepang</option>
+        <option value="USD" ${state.currency==='USD'?'selected':''}>$ USD — Dolar Amerika</option>
+        <option value="IDR" ${state.currency==='IDR'?'selected':''}>Rp IDR — Rupiah Indonesia</option>
+      </select>
+    </div>`;
+  } else if (tab==='export') {
+    c.innerHTML = `
+    <div class="two-col">
+      <div class="card">
+        <div class="section-title" style="margin-bottom:16px;">📤 Export Data</div>
+        <button class="btn-primary" style="margin-bottom:12px;" onclick="exportExcel()">📊 Export ke Excel (.xlsx)</button>
+        <button class="btn-primary" style="background:var(--expense);" onclick="exportPDF()">📄 Export PDF Laporan</button>
+      </div>
+      <div class="card">
+        <div class="section-title" style="margin-bottom:16px;">📥 Import Data</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Import transaksi dari file Excel yang telah diekspor sebelumnya.</p>
+        <input type="file" id="import-file" accept=".xlsx" style="display:none" onchange="importExcel(this)"/>
+        <button class="btn-primary" style="background:var(--income);" onclick="document.getElementById('import-file').click()">📥 Import dari Excel</button>
+      </div>
+    </div>`;
+  } else if (tab==='reset') {
+    c.innerHTML = `
+    <div class="card" style="text-align:center;padding:40px;">
+      <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+      <div class="section-title" style="margin-bottom:8px;">Reset Semua Data</div>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:24px;">Ini akan menghapus SEMUA data transaksi, investasi, catatan, dan pengaturan. Aksi ini tidak bisa dibatalkan!</p>
+      <button class="btn-primary" style="background:var(--expense);max-width:200px;margin:0 auto;" onclick="resetAll()">Hapus Semua Data</button>
+    </div>`;
+  }
+}
+
+function addCategory(type) {
+  const name = prompt(`Nama kategori ${type==='income'?'pemasukan':'pengeluaran'} baru:`);
+  if (name && name.trim()) { state.categories[type].push(name.trim()); save(); showPage('settings', null); }
+}
+function deleteCategory(type, idx) {
+  state.categories[type].splice(idx,1); save(); showPage('settings', null);
+}
+function addAccount() {
+  const name = prompt('Nama akun baru:');
+  if (name && name.trim()) {
+    const bal = parseFloat(prompt('Saldo awal:')||0);
+    state.accounts.push({id:'acc_'+Date.now(), name:name.trim(), balance:bal, icon:'💰'});
+    save(); showPage('settings', null);
+  }
+}
+function deleteAccount(id) {
+  state.accounts = state.accounts.filter(a=>a.id!==id); save(); showPage('settings', null);
+}
+
+function applyTheme(accent, bg) {
+  document.documentElement.style.setProperty('--accent', accent);
+  document.documentElement.style.setProperty('--bg', bg);
+  document.documentElement.style.setProperty('--accent-soft', accent+'22');
+  document.documentElement.style.setProperty('--accent2', accent+'88');
+  state.theme = accent; save();
+  showToast('🎨 Tema diubah!');
+}
+
+// ---- TX Modal ----
+let currentTxType = 'income';
+function openTxModal() {
+  currentTxType = 'income';
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.income-btn').classList.add('active');
+  setTxType('income', document.querySelector('.income-btn'));
+  document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+  fillTxSelects();
+  openModal('tx-modal');
+}
+function closeTxModal() { closeModal('tx-modal'); }
+
+function setTxType(type, btn) {
+  currentTxType = type;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const fromWrap = document.getElementById('tx-from-wrap');
+  const toWrap = document.getElementById('tx-to-wrap');
+  const catWrap = document.getElementById('tx-cat-wrap');
+  if (type==='transfer') {
+    fromWrap.style.display=''; toWrap.style.display=''; catWrap.style.display='none';
+  } else {
+    fromWrap.style.display=''; toWrap.style.display='none'; catWrap.style.display='';
+    fillTxSelects();
+  }
+}
+
+function fillTxSelects() {
+  const from = document.getElementById('tx-from-account');
+  const to = document.getElementById('tx-to-account');
+  const cat = document.getElementById('tx-category');
+  if(from) from.innerHTML = state.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  if(to) to.innerHTML = state.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  if(cat) cat.innerHTML = (currentTxType==='income'?state.categories.income:state.categories.expense).map(c=>`<option>${c}</option>`).join('');
+}
+
+function saveTx() {
+  const amount = parseFloat(document.getElementById('tx-amount').value)||0;
+  if (!amount) { showToast('⚠️ Masukkan nominal!'); return; }
+  const tx = {
+    id: ++state.txIdCounter,
+    type: currentTxType,
+    amount,
+    date: document.getElementById('tx-date').value,
+    note: document.getElementById('tx-note').value,
+  };
+  if (currentTxType==='transfer') {
+    tx.fromAccount = document.getElementById('tx-from-account').value;
+    tx.toAccount = document.getElementById('tx-to-account').value;
+    const fromAcc = state.accounts.find(a=>a.id===tx.fromAccount);
+    const toAcc = state.accounts.find(a=>a.id===tx.toAccount);
+    if(fromAcc) fromAcc.balance -= amount;
+    if(toAcc) toAcc.balance += amount;
+  } else {
+    tx.account = document.getElementById('tx-from-account').value;
+    tx.category = document.getElementById('tx-category').value;
+    const acc = state.accounts.find(a=>a.id===tx.account);
+    if(acc) acc.balance += currentTxType==='income' ? amount : -amount;
+  }
+  state.transactions.push(tx);
+  save(); closeTxModal();
+  showToast('✅ Transaksi disimpan!');
+  if (currentPage==='home') showPage('home', document.querySelector('.nav-item'));
+  if (currentPage==='analytic') showPage('analytic', null);
+}
+
+function deleteTx(id) {
+  state.transactions = state.transactions.filter(t=>t.id!==id);
+  save(); showPage('analytic', null); showToast('🗑 Transaksi dihapus');
+}
+
+// ---- Modals ----
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click', e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+
+// ---- Toast ----
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ---- Currency & Lang ----
+function setCurrency(val) {
+  state.currency = val;
+  document.getElementById('currency-select').value = val;
+  save();
+  if (currentPage) showPage(currentPage, null);
+}
+function setLang(val) {
+  state.lang = val;
+  document.getElementById('lang-select').value = val;
+  save(); applyLang();
+  if (currentPage) showPage(currentPage, null);
+}
+function applyLang() {
+  document.getElementById('lang-select').value = state.lang;
+}
+function applyCurrency() {
+  document.getElementById('currency-select').value = state.currency;
+}
+
+// ---- Export Excel ----
+function exportExcel() {
+  const wb = XLSX.utils.book_new();
+  // Transactions sheet
+  const txData = [['ID','Tipe','Nominal','Akun','Kategori','Tanggal','Catatan']];
+  state.transactions.forEach(t=>{
+    txData.push([t.id,t.type,t.amount,t.account||`${t.fromAccount}->${t.toAccount}`,t.category||'-',t.date,t.note||'-']);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(txData), 'Transaksi');
+  // Investments sheet
+  const invData = [['Kode','Nama','Tipe','Lot','Harga Beli','Harga Saat Ini','Gain/Loss']];
+  state.investments.forEach(i=>{
+    invData.push([i.code,i.name,i.type,i.lot,i.buyPrice,i.currentPrice,(i.currentPrice-i.buyPrice)*i.lot]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(invData), 'Investasi');
+  XLSX.writeFile(wb, 'reece_finance.xlsx');
+  showToast('📊 Excel berhasil diexport!');
+}
+
+// ---- Import Excel ----
+function importExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'binary'});
+      const ws = wb.Sheets['Transaksi'];
+      if (!ws) { showToast('❌ Sheet "Transaksi" tidak ditemukan'); return; }
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1}).slice(1);
+      rows.forEach(r=>{
+        if(r[2]) state.transactions.push({id:++state.txIdCounter,type:r[1],amount:Number(r[2]),account:r[3],category:r[4],date:r[5],note:r[6]||''});
+      });
+      save(); showPage(currentPage,null); showToast(`✅ Import berhasil! ${rows.length} transaksi`);
+    } catch(err) { showToast('❌ Error import: '+err.message); }
+  };
+  reader.readAsBinaryString(file);
+}
+
+// ---- Export PDF ----
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const totalIncome = state.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const totalExpense = state.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const totalInvest = state.investments.reduce((s,i)=>s+(i.currentPrice*i.lot),0);
+
+  // Header
+  doc.setFillColor(108,142,255);
+  doc.rect(0,0,210,40,true,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(20); doc.setFont('helvetica','bold');
+  doc.text('Reece~ Financial Report', 20, 20);
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text(`Generated: ${new Date().toLocaleDateString('id-ID', {weekday:'long',year:'numeric',month:'long',day:'numeric'})}`, 20, 32);
+
+  // Summary
+  doc.setTextColor(30,30,50);
+  doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('Ringkasan Keuangan', 20, 55);
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+
+  const summaryData = [
+    ['Total Pemasukan', fmt(totalIncome)],
+    ['Total Pengeluaran', fmt(totalExpense)],
+    ['Net Cashflow', fmt(totalIncome-totalExpense)],
+    ['Total Investasi', fmt(totalInvest)],
+    ['Total Aset', fmt(state.accounts.reduce((s,a)=>s+a.balance,0))],
+  ];
+  let y = 65;
+  summaryData.forEach(([label,value])=>{
+    doc.setFont('helvetica','bold'); doc.text(label+':', 20, y);
+    doc.setFont('helvetica','normal'); doc.text(value, 100, y);
+    y += 8;
+  });
+
+  // Accounts
+  y += 6;
+  doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('Status Akun', 20, y); y += 10;
+  state.accounts.forEach(a=>{
+    doc.setFontSize(10); doc.setFont('helvetica','normal');
+    doc.text(`${a.name}: ${fmt(a.balance)}`, 24, y); y+=7;
+  });
+
+  // Transactions
+  y += 6;
+  if (y > 230) { doc.addPage(); y = 20; }
+  doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('10 Transaksi Terakhir', 20, y); y+=8;
+  doc.setFontSize(9);
+  const headers = ['Tanggal','Tipe','Nominal','Kategori','Catatan'];
+  const colW = [28,22,30,30,60];
+  let x = 20;
+  doc.setFont('helvetica','bold');
+  headers.forEach((h,i)=>{ doc.text(h, x, y); x+=colW[i]; });
+  y+=2; doc.line(20, y, 190, y); y+=5;
+  doc.setFont('helvetica','normal');
+  state.transactions.slice(-10).reverse().forEach(t=>{
+    if(y>270){ doc.addPage(); y=20; }
+    x=20;
+    const row=[t.date,t.type,fmt(t.amount),t.category||'-',(t.note||'-').substring(0,20)];
+    row.forEach((v,i)=>{ doc.text(String(v), x, y); x+=colW[i]; });
+    y+=6;
+  });
+
+  // Investments
+  if (state.investments.length > 0) {
+    y+=6; if(y>230){doc.addPage();y=20;}
+    doc.setFontSize(14); doc.setFont('helvetica','bold');
+    doc.text('Portofolio Investasi', 20, y); y+=8;
+    doc.setFontSize(9);
+    const ih=['Kode','Nama','Lot','Harga Beli','Harga Skrg','Gain/Loss'];
+    const iw=[22,44,12,28,28,36];
+    x=20; doc.setFont('helvetica','bold');
+    ih.forEach((h,i)=>{ doc.text(h,x,y); x+=iw[i]; });
+    y+=2; doc.line(20,y,190,y); y+=5;
+    doc.setFont('helvetica','normal');
+    state.investments.forEach(i=>{
+      if(y>270){doc.addPage();y=20;}
+      x=20;
+      const g=(i.currentPrice-i.buyPrice)*i.lot;
+      [i.code,i.name.substring(0,15),String(i.lot),fmt(i.buyPrice),fmt(i.currentPrice),fmt(g)].forEach((v,idx)=>{doc.text(v,x,y);x+=iw[idx];});
+      y+=6;
+    });
+  }
+
+  // Footer
+  const pageCount = doc.getNumberOfPages();
+  for(let p=1;p<=pageCount;p++){
+    doc.setPage(p);
+    doc.setFontSize(8); doc.setTextColor(150);
+    doc.text(`Reece Finance Report · Hal ${p}/${pageCount}`, 20, 290);
+  }
+
+  doc.save(`reece_laporan_${new Date().toISOString().split('T')[0]}.pdf`);
+  showToast('📄 PDF berhasil diexport!');
+}
+
+// ---- Reset ----
+function resetAll() {
+  if (confirm('Yakin ingin menghapus SEMUA data? Aksi ini tidak bisa dibatalkan!')) {
+    localStorage.removeItem('reece_state');
+    location.reload();
+  }
+}
+
+// ---- Init ----
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = JSON.parse(localStorage.getItem('reece_state')||'null');
+  if (saved) { state = saved; }
+
+  // Apply saved theme
+  if (state.theme && state.theme !== 'default') {
+    document.documentElement.style.setProperty('--accent', state.theme);
+    document.documentElement.style.setProperty('--accent-soft', state.theme+'22');
+  }
+
+  if (state.loggedIn) {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').classList.add('active');
+    document.getElementById('sidebar-username').textContent = state.username;
+    document.getElementById('sidebar-avatar').textContent = (state.username||'R')[0].toUpperCase();
+    applyLang(); applyCurrency();
+    showPage('home', document.querySelector('.nav-item'));
+  }
+
+  // Enter key on login
+  document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+});
+</script>
+</body>
+</html>
