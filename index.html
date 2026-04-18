@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Reece~ Finance</title>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Sora:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Sora:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Figtree:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -159,7 +159,7 @@ input,select,textarea{font-family:var(--font);}
 .stat-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
 .stat-label{font-size:11.5px;font-weight:600;color:var(--text3);letter-spacing:.3px;}
 .stat-icon-wrap{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
-.stat-value{font-size:22px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;line-height:1;margin-bottom:6px;}
+.stat-value{font-size:28px;font-weight:800;font-family:var(--mono);letter-spacing:-1.5px;line-height:1;margin-bottom:6px;}
 .stat-card.income .stat-value{color:var(--blue);}
 .stat-card.expense .stat-value{color:var(--expense);}
 .stat-card.invest .stat-value{color:var(--invest);}
@@ -815,7 +815,7 @@ async function loadUserData() {
   // Apply theme & font
   if (D.theme) { document.documentElement.style.setProperty('--blue', D.theme); document.documentElement.style.setProperty('--blue-soft', D.theme+'18'); }
   if (D.font) { document.documentElement.style.setProperty('--font',`'${D.font}', sans-serif`); document.body.style.fontFamily=`'${D.font}', sans-serif`; }
-  if (D.fontSize) document.documentElement.style.fontSize = D.fontSize + 'px';
+  if (D.fontSize) { document.documentElement.style.fontSize = D.fontSize + 'px'; const ov=Math.round(parseInt(D.fontSize)*2)+'px'; document.documentElement.style.setProperty('--overview-font-size',ov); }
   hideLoading();
 }
 
@@ -904,13 +904,13 @@ function renderHome(c) {
     <div class="two-col" style="margin-bottom:16px;">
       <div class="card card-p">
         <div class="sec-hdr"><div class="sec-title">${T('earn_overview')}</div><span style="font-size:12px;color:var(--text3)">${T('this_month')}</span></div>
-        <div style="font-size:24px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;color:var(--blue);margin-bottom:2px;">${fmt(totalInc)}</div>
+        <div style="font-size:var(--overview-font-size,28px);font-weight:800;font-family:var(--mono);letter-spacing:-1.5px;color:var(--blue);margin-bottom:2px;">${fmt(totalInc)}</div>
         <div style="font-size:12px;color:var(--matcha);font-weight:600;margin-bottom:10px;">↑ ${totalInc>0?((totalInc/(totalInc+totalExp))*100).toFixed(1):0}% of total cashflow</div>
         <div class="chart-box chart-box-h200"><canvas id="earn-line"></canvas></div>
       </div>
       <div class="card card-p">
         <div class="sec-hdr"><div class="sec-title">${T('spend_overview')}</div><span style="font-size:12px;color:var(--text3)">${T('this_month')}</span></div>
-        <div style="font-size:24px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;color:var(--expense);margin-bottom:2px;">${fmt(totalExp)}</div>
+        <div style="font-size:var(--overview-font-size,28px);font-weight:800;font-family:var(--mono);letter-spacing:-1.5px;color:var(--expense);margin-bottom:2px;">${fmt(totalExp)}</div>
         <div style="font-size:12px;color:var(--expense);font-weight:600;margin-bottom:10px;">↓ ${totalExp>0?((totalExp/(totalInc||1))*100).toFixed(1):0}% of income</div>
         <div class="spend-legend" style="margin-bottom:8px;">${topCats.map(([cat,amt],i)=>`<div class="spend-dot"><div class="spend-dot-color" style="background:${catColors[i]}"></div><span style="font-weight:600">${cat}</span><span style="color:var(--text3)">${fmt(amt)}</span></div>`).join('')}</div>
         <div class="spend-bar">${topCats.map(([,amt],i)=>`<div class="spend-seg" style="width:${totalExp>0?((amt/totalExp)*100).toFixed(1):0}%;background:${catColors[i]}"></div>`).join('')}<div class="spend-seg" style="flex:1;background:var(--surface3)"></div></div>
@@ -918,7 +918,7 @@ function renderHome(c) {
     </div>
     <div class="col-6040" style="margin-bottom:16px;">
       <div class="card card-p">
-        <div class="sec-hdr"><div><div class="sec-title">${T('cashflow')}</div><div style="font-size:26px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;margin-top:2px;">${fmt(totalAssets)}</div></div></div>
+        <div class="sec-hdr"><div><div class="sec-title">${T('cashflow')}</div><div style="font-size:var(--overview-font-size,28px);font-weight:800;font-family:var(--mono);letter-spacing:-1.5px;margin-top:2px;">${fmt(totalAssets)}</div></div></div>
         <div class="cf-tabs"><button class="cf-tab active" onclick="setCfTab('income',this)">${T('income')}</button><button class="cf-tab" onclick="setCfTab('expense',this)">${T('expense')}</button><button class="cf-tab" onclick="setCfTab('net',this)">Net</button></div>
         <div class="chart-box chart-box-h200"><canvas id="cf-bar"></canvas></div>
       </div>
@@ -1776,8 +1776,8 @@ function showStab(tab,el){
       <div class="card card-p"><div class="sec-hdr"><div class="sec-title">🔴 Expense Categories</div><button class="btn btn-blue btn-sm" onclick="addCat('expense')">+ Add</button></div>${D.categories.expense.map((cat,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)"><span style="font-size:13px">${cat}</span><button class="btn-icon" onclick="delCat('expense',${i})" style="color:var(--expense);width:26px;height:26px;font-size:12px">✕</button></div>`).join('')}</div>
     </div>`;
   } else if(tab==='appearance'){
-    const fonts=[{v:'Geist',l:'Geist (Default)'},{v:'Inter',l:'Inter'},{v:'DM Sans',l:'DM Sans'},{v:'Sora',l:'Sora'},{v:'Nunito',l:'Nunito'}];
-    const sizes=[{v:'13',l:'Small (13px)'},{v:'14',l:'Normal (14px)'},{v:'15',l:'Medium (15px)'},{v:'16',l:'Large (16px)'}];
+    const fonts=[{v:'Geist',l:'Geist'},{v:'Inter',l:'Inter'},{v:'DM Sans',l:'DM Sans'},{v:'Sora',l:'Sora'},{v:'Nunito',l:'Nunito'},{v:'Outfit',l:'Outfit'},{v:'Plus Jakarta Sans',l:'Plus Jakarta Sans'},{v:'Figtree',l:'Figtree'},{v:'Raleway',l:'Raleway'},{v:'Poppins',l:'Poppins'},{v:'Manrope',l:'Manrope'}];
+    const sizes=[{v:'12',l:'12px'},{v:'13',l:'13px'},{v:'14',l:'14px (Default)'},{v:'15',l:'15px'},{v:'16',l:'16px'},{v:'17',l:'17px'},{v:'18',l:'18px'},{v:'19',l:'19px'},{v:'20',l:'20px'},{v:'22',l:'22px'},{v:'24',l:'24px'},{v:'26',l:'26px'},{v:'28',l:'28px'},{v:'30',l:'30px'}];
     const currentFont = D.font||'Geist';
     const currentSize = D.fontSize||'14';
     c.innerHTML=`<div class="card card-p" style="margin-bottom:16px;">
@@ -1788,14 +1788,14 @@ function showStab(tab,el){
       <div class="sec-title" style="margin-bottom:14px;">${T('font_settings')}</div>
       <div style="margin-bottom:14px;">
         <label style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:6px;">${T('font_family')}</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          ${fonts.map(f=>`<button onclick="applyFont('${f.v}')" style="padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid ${currentFont===f.v?'var(--blue)':'var(--border)'};background:${currentFont===f.v?'var(--blue-soft)':'var(--surface)'};color:${currentFont===f.v?'var(--blue)':'var(--text2)'};font-family:'${f.v}',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;">${f.l}</button>`).join('')}
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          ${fonts.map(f=>`<button onclick="applyFont('${f.v}')" style="padding:10px 12px;border-radius:var(--radius-sm);border:1.5px solid ${currentFont===f.v?'var(--blue)':'var(--border)'};background:${currentFont===f.v?'var(--blue-soft)':'var(--surface)'};color:${currentFont===f.v?'var(--blue)':'var(--text2)'};font-family:'${f.v}',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;text-align:left;">${f.l}</button>`).join('')}
         </div>
       </div>
       <div>
         <label style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:6px;">${T('font_size')}</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          ${sizes.map(s=>`<button onclick="applyFontSize('${s.v}')" style="padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid ${currentSize===s.v?'var(--blue)':'var(--border)'};background:${currentSize===s.v?'var(--blue-soft)':'var(--surface)'};color:${currentSize===s.v?'var(--blue)':'var(--text2)'};font-size:${s.v}px;font-weight:600;cursor:pointer;transition:all .15s;">${s.l}</button>`).join('')}
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+          ${sizes.map(s=>`<button onclick="applyFontSize('${s.v}')" style="padding:9px 8px;border-radius:var(--radius-sm);border:1.5px solid ${currentSize===s.v?'var(--blue)':'var(--border)'};background:${currentSize===s.v?'var(--blue-soft)':'var(--surface)'};color:${currentSize===s.v?'var(--blue)':'var(--text2)'};font-size:${s.v}px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;">${s.l}</button>`).join('')}
         </div>
       </div>
     </div>
@@ -1834,7 +1834,10 @@ async function applyFont(fontName){
 async function applyFontSize(size){
   D.fontSize=size;
   document.documentElement.style.fontSize=size+'px';
-  await saveSettings(); showToast('📏 Font size updated!');
+  // Scale overview numbers proportionally
+  const overviewSize = Math.round(parseInt(size) * 2) + 'px';
+  document.documentElement.style.setProperty('--overview-font-size', overviewSize);
+  await saveSettings(); showToast('📏 Font size: '+size+'px');
   showStab('appearance',document.querySelector('.itab.active'));
 }
 async function setCurrency(v){ D.currency=v;document.getElementById('sel-currency').value=v;await saveSettings();navTo(currentPage,document.querySelector(`.nav-item[data-page="${currentPage}"]`)); }
