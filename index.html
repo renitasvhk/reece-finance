@@ -4,13 +4,23 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Reece~ Finance</title>
-<!-- system font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
+
+/* GLOBAL INTER OVERRIDE - NO EXCEPTIONS */
+*, *::before, *::after,
+body, html, div, span, p, a, button, input, select, textarea,
+h1, h2, h3, h4, h5, h6, label, li, td, th, nav, header, footer,
+.card, .modal, .sidebar, .topbar, .content, .btn, .nav-item,
+.tx-item, .stat-card, .acc-card, .note-card, .fund-card {
+  font-family: 'Inter', sans-serif !important;
+}
+
 :root {
   --bg:#f5f7f8;
   --surface:#ffffff;
@@ -63,8 +73,8 @@
   --shadow-lg:0 8px 32px rgba(0,0,0,.12);
 
   /* System font — no import needed */
-  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-  --mono:ui-monospace,'SF Mono','Fira Code',monospace;
+  --font:'Inter',sans-serif;
+  --mono:'Inter',sans-serif;
   --ui-font-size:14px;
   --overview-font-size:32px;
   --sidebar-w:240px;
@@ -73,17 +83,21 @@
 /* Nav SVG icons */
 .nsv{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
 .nav-item{gap:11px;}
-.nav-item.active{background:var(--blue-soft);color:var(--blue);}
-.nav-item:hover{background:var(--surface2);color:var(--text);}
-.sidebar-logo{font-size:26px;font-weight:800;color:#0d9488;letter-spacing:-1px;line-height:1;}
+.nav-item.active{background:#f0fdfa;color:#0d9488;font-weight:600;}
+.nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:#0d9488;border-radius:0 3px 3px 0;}
+.nav-item:hover{background:#f8fafc;color:#0f172a;}
+.sidebar-logo{font-size:24px;font-weight:700;color:#0d9488;letter-spacing:-.5px;letter-spacing:-1px;line-height:1;}
 
-html{font-size:14px;}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+html{font-size:15px;}
+body{background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+/* Force Inter on ALL elements */
+*{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+input,select,textarea,button{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif !important;}
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
-button{font-family:var(--font);cursor:pointer;}
-input,select,textarea{font-family:var(--font);}
+button{cursor:pointer;}
+input,select,textarea{}
 
 /* ---- Loading overlay ---- */
 #loading-overlay{
@@ -139,46 +153,46 @@ input,select,textarea{font-family:var(--font);}
 #app{display:none;min-height:100vh;}
 #app.active{display:flex;}
 
-.sidebar{width:var(--sidebar-w);background:#ffffff;border-right:1px solid #eaecef;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
-.sidebar-top{padding:22px 20px 16px;border-bottom:1px solid var(--border);}
+.sidebar{width:var(--sidebar-w);background:#ffffff;border-right:1px solid #f1f5f9;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+.sidebar-top{padding:28px 24px 20px;border-bottom:1px solid #f1f5f9;}
 .sidebar-logo{font-size:28px;font-weight:800;color:var(--blue);letter-spacing:-1.5px;line-height:1;}
 .sidebar-logo-sub{font-size:9.5px;color:var(--text3);letter-spacing:.5px;margin-top:1px;}
-.sidebar-search{padding:10px 14px;border-bottom:1px solid var(--border);}
-.search-wrap{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 11px;}
+.sidebar-search{padding:0 16px 16px;border-bottom:none;}
+.search-wrap{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:9px 13px;}
 .search-wrap input{border:none;background:none;outline:none;font-size:13px;color:var(--text);flex:1;}
-.sidebar-nav{flex:1;padding:10px 12px;overflow-y:auto;}
-.nav-sec{font-size:10px;font-weight:700;color:var(--text4);letter-spacing:1.2px;text-transform:uppercase;padding:10px 8px 4px;}
+.sidebar-nav{flex:1;padding:8px 16px 0;overflow-y:auto;display:flex;flex-direction:column;}
+.nav-sec{font-size:10px;font-weight:600;color:#cbd5e1;letter-spacing:1.2px;text-transform:uppercase;padding:18px 14px 6px;}
 .nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s,color .15s;font-size:13.5px;font-weight:500;color:var(--text2);margin-bottom:1px;}
-.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item:hover{background:#f8fafc;color:#0f172a;}
 .nav-item.active{background:var(--blue-soft);color:var(--blue);font-weight:600;}
 .nav-item .ni{font-size:15px;width:22px;text-align:center;flex-shrink:0;}
-.nav-badge{margin-left:auto;background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;}
-.sidebar-bottom{padding:12px;border-top:1px solid var(--border);}
-.user-row{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--radius-sm);background:var(--surface2);}
-.user-ava{width:34px;height:34px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--blue-soft);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--blue);}
+.nav-badge{margin-left:auto;background:#0d9488;color:#fff;font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;}
+.sidebar-bottom{padding:16px 20px 24px;border-top:none;}
+.user-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;background:#f8fafc;border:1px solid #f1f5f9;}
+.user-ava{width:38px;height:38px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#f0fdfa;border:1.5px solid #cff0eb;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#0d9488;}
 .user-ava img{width:100%;height:100%;object-fit:cover;}
 .user-info{flex:1;min-width:0;}
-.user-name-t{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.user-role-t{font-size:11px;color:var(--text3);}
+.user-name-t{font-size:14px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-role-t{font-size:12px;color:#94a3b8;}
 .btn-logout{background:none;border:none;color:var(--text3);font-size:15px;padding:4px;border-radius:6px;transition:color .2s,background .2s;}
 .btn-logout:hover{color:var(--expense);background:var(--expense-soft);}
 
 .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
-.topbar{height:60px;background:#ffffff;border-bottom:1px solid #eaecef;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50;}
-.topbar-left{display:flex;flex-direction:column;}
-.topbar-title{font-size:18px;font-weight:700;letter-spacing:-.4px;line-height:1.1;}
-.topbar-date{font-size:11px;color:var(--text3);margin-top:1px;}
+.topbar{height:68px;background:#ffffff;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50;}
+.topbar-left{display:flex;flex-direction:column;gap:1px;}
+.topbar-title{font-size:20px;font-weight:600;color:#0f172a;letter-spacing:-.3px;line-height:1.1;}
+.topbar-date{font-size:12px;color:#94a3b8;margin-top:2px;}
 .topbar-right{display:flex;gap:8px;align-items:center;}
 .sel{padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text);background:var(--surface);outline:none;cursor:pointer;transition:border-color .2s;}
 .sel:focus{border-color:var(--blue);}
-.content{padding:28px 32px;flex:1;overflow-y:auto;background:#f5f7f8;}
+.content{padding:36px 40px;flex:1;overflow-y:auto;background:#f4f6f8;}
 
 /* ---- Cards ---- */
-.card{background:#ffffff;border-radius:14px;border:1.5px solid #eaecef;box-shadow:0 1px 4px rgba(0,0,0,.04);}
-.card-p{padding:24px 26px;}
-.card-p-sm{padding:16px 20px;}
-.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden;}
+.card{background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.03);}
+.card-p{padding:28px 30px;}
+.card-p-sm{padding:20px 24px;}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:22px 24px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden;}
 .stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;}
 .stat-card.income::after{background:var(--blue);}
 .stat-card.expense::after{background:var(--expense);}
@@ -188,7 +202,7 @@ input,select,textarea{font-family:var(--font);}
 .stat-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
 .stat-label{font-size:11.5px;font-weight:600;color:var(--text3);letter-spacing:.3px;}
 .stat-icon-wrap{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
-.stat-value{font-size:28px;font-weight:800;font-family:var(--mono);letter-spacing:-1.5px;line-height:1;margin-bottom:6px;}
+.stat-value{font-size:28px;font-weight:800;letter-spacing:-1.5px;line-height:1;margin-bottom:6px;}
 .stat-card.income .stat-value{color:var(--blue);}
 .stat-card.expense .stat-value{color:var(--expense);}
 .stat-card.invest .stat-value{color:var(--invest);}
@@ -203,19 +217,19 @@ input,select,textarea{font-family:var(--font);}
 .sec-title{font-size:14px;font-weight:700;letter-spacing:-.2px;}
 .sec-action{font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;background:none;border:none;}
 
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;border:none;transition:all .2s;cursor:pointer;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;font-size:14px;font-weight:600;border:none;transition:all .2s;cursor:pointer;}
 .btn-blue{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(74,124,255,.25);}
 .btn-blue:hover{background:var(--blue-dark);}
 .btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
 .btn-ghost:hover{background:var(--blue-soft);color:var(--blue);}
 .btn-danger{background:var(--expense-soft);color:var(--expense);border:1px solid #fcd0d5;}
 .btn-danger:hover{background:var(--expense);color:#fff;}
-.btn-sm{padding:6px 12px;font-size:12px;border-radius:var(--radius-xs);}
+.btn-sm{padding:7px 14px;font-size:13px;border-radius:8px;}
 .btn-icon{width:32px;height:32px;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--surface2);border:1px solid var(--border);transition:all .15s;cursor:pointer;}
 .btn-icon:hover{background:var(--blue-soft);color:var(--blue);}
 
 .tx-list{display:flex;flex-direction:column;gap:1px;}
-.tx-item{display:flex;align-items:center;gap:12px;padding:11px 16px;background:var(--surface);border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer;}
+.tx-item{display:flex;align-items:center;gap:14px;padding:15px 20px;background:var(--surface);border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer;}
 .tx-item:last-child{border-bottom:none;}
 .tx-item:hover{background:var(--surface2);}
 .tx-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
@@ -223,7 +237,7 @@ input,select,textarea{font-family:var(--font);}
 .tx-name{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .tx-meta{font-size:11.5px;color:var(--text3);margin-top:1px;}
 .tx-right{text-align:right;flex-shrink:0;}
-.tx-amount{font-family:var(--mono);font-size:13.5px;font-weight:700;}
+.tx-amount{font-size:13.5px;font-weight:700;}
 .tx-amount.inc{color:var(--blue);}
 .tx-amount.exp{color:var(--expense);}
 .tx-amount.tra{color:var(--transfer);}
@@ -285,8 +299,8 @@ input,select,textarea{font-family:var(--font);}
 .itab.active{color:var(--blue);border-bottom-color:var(--blue);}
 
 .tbl{width:100%;border-collapse:collapse;font-size:13px;}
-.tbl thead th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border);}
-.tbl tbody td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.tbl thead th{text-align:left;padding:13px 16px;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.tbl tbody td{padding:14px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
 .tbl tbody tr:last-child td{border-bottom:none;}
 .tbl tbody tr{transition:background .12s;}
 .tbl tbody tr:hover{background:var(--surface2);}
@@ -302,7 +316,7 @@ input,select,textarea{font-family:var(--font);}
 .acc-info{flex:1;min-width:0;}
 .acc-name{font-size:13.5px;font-weight:700;}
 .acc-type{font-size:11px;color:var(--text3);margin-top:1px;}
-.acc-bal{font-family:var(--mono);font-size:15px;font-weight:800;}
+.acc-bal{font-size:15px;font-weight:800;}
 
 .note-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;transition:box-shadow .2s;}
 .note-card:hover{box-shadow:var(--shadow);}
@@ -313,7 +327,7 @@ input,select,textarea{font-family:var(--font);}
 .swatch:hover{transform:scale(1.06);}
 .swatch.active{border-color:var(--blue);}
 
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
 .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
 .col-6040{display:grid;grid-template-columns:3fr 2fr;gap:16px;}
 .div{height:1px;background:var(--border);margin:16px 0;}
@@ -334,7 +348,7 @@ input,select,textarea{font-family:var(--font);}
 .bill-status{font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;background:var(--blue-soft);color:var(--blue);}
 
 .drawer-header{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:16px;}
-.drawer-bal{font-family:var(--mono);font-size:18px;font-weight:800;color:var(--blue);margin-left:auto;}
+.drawer-bal{font-size:18px;font-weight:800;color:var(--blue);margin-left:auto;}
 
 .toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:11px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;z-index:9000;opacity:0;transform:translateY(8px);transition:all .28s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.2);}
 .toast.show{opacity:1;transform:none;}
@@ -354,7 +368,7 @@ input,select,textarea{font-family:var(--font);}
 .goal-prog-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:shimmer 2s infinite;}
 @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 .goal-stats{display:flex;justify-content:space-between;align-items:center;}
-.goal-pct{font-size:28px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;}
+.goal-pct{font-size:28px;font-weight:800;letter-spacing:-1px;}
 .goal-remaining{font-size:12px;color:rgba(255,255,255,.5);text-align:right;}
 /* ---- Quote ---- */
 .quote-bar{background:var(--blue-soft);border-left:3px solid var(--blue);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:10px 16px;margin-bottom:20px;font-size:13px;color:var(--text2);font-style:italic;line-height:1.6;}
@@ -368,7 +382,7 @@ input,select,textarea{font-family:var(--font);}
 .fund-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
 .fund-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);}
 .fund-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
-.fund-value{font-size:20px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;margin-bottom:6px;}
+.fund-value{font-size:20px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;}
 .fund-bar-wrap{background:var(--surface2);border-radius:99px;height:5px;margin-top:8px;overflow:hidden;}
 .fund-bar-fill{height:100%;border-radius:99px;transition:width .8s ease;}
 
@@ -453,7 +467,7 @@ input,select,textarea{font-family:var(--font);}
         <svg class="nsv" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
         <span class="nl" data-i18n="transactions">Transactions</span>
       </div>
-      <div class="nav-sec" style="margin-top:8px;">GENERAL</div>
+      <div class="nav-sec">GENERAL</div>
       <div class="nav-item" data-page="investment" onclick="navTo('investment',this)">
         <svg class="nsv" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
         <span class="nl" data-i18n="investment">Investment</span>
@@ -466,6 +480,10 @@ input,select,textarea{font-family:var(--font);}
         <svg class="nsv" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         <span class="nl" data-i18n="notes">Notes</span>
       </div>
+      <div class="nav-item" data-page="journey" onclick="navTo('journey',this)">
+        <svg class="nsv" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        <span class="nl">Plan & Journey</span>
+      </div>
       <div class="nav-item" data-page="settings" onclick="navTo('settings',this)">
         <svg class="nsv" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span class="nl" data-i18n="settings">Settings</span>
@@ -475,16 +493,18 @@ input,select,textarea{font-family:var(--font);}
         <span class="nl" style="color:#ef4444">Log Out</span>
       </div>
     </nav>
-    <div class="sidebar-bottom">
-      <div class="user-row">
-        <div class="user-ava" id="sidebar-ava">R</div>
-        <div class="user-info">
-          <div class="user-name-t" id="sidebar-name">Rea</div>
-          <div class="user-role-t">Personal Finance</div>
-        </div>
+
+  
+  <div style="padding:16px 20px;border-top:1px solid #f1f5f9;">
+    <div class="user-row">
+      <div class="user-ava" id="sidebar-ava">R</div>
+      <div class="user-info">
+        <div class="user-name-t" id="sidebar-name">Rea</div>
+        <div class="user-role-t">Personal Finance</div>
       </div>
     </div>
-  </aside>
+  </div>
+</aside>
 
   <main class="main">
     <div class="topbar">
@@ -493,6 +513,14 @@ input,select,textarea{font-family:var(--font);}
         <div class="topbar-date" id="topbar-date"></div>
       </div>
       <div class="topbar-right">
+        <button id="topbar-edit-btn" onclick="handleTopbarEdit()" title="Edit" style="display:none;background:none;border:1px solid #e5e7eb;border-radius:8px;padding:7px 10px;cursor:pointer;color:#64748b;font-size:14px;display:flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <span id="topbar-edit-label">Edit</span>
+        </button>
+        <button id="topbar-add-btn" onclick="handleTopbarAdd()" title="Add" style="display:none;background:#0d9488;border:none;border-radius:8px;padding:7px 12px;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span id="topbar-add-label">Add</span>
+        </button>
         <select class="sel" id="sel-currency" onchange="setCurrency(this.value)">
           <option value="JPY">¥ JPY</option>
           <option value="USD">$ USD</option>
@@ -515,7 +543,7 @@ input,select,textarea{font-family:var(--font);}
 <!-- Modals -->
 <div class="overlay" id="m-tx">
 <div class="modal">
-  <div class="modal-hdr"><div class="modal-title">${T('add_transaction')}</div><button class="btn-close" onclick="closeM('m-tx')">✕</button></div>
+  <div class="modal-hdr"><div class="modal-title" id="tx-modal-title">Add Transaction</div><button class="btn-close" onclick="closeM('m-tx')">✕</button></div>
   <div class="type-tabs">
     <button class="type-tab inc active" onclick="setTxType('income',this)">💙 Income</button>
     <button class="type-tab exp" onclick="setTxType('expense',this)">🔴 Expense</button>
@@ -555,7 +583,7 @@ input,select,textarea{font-family:var(--font);}
 
 <div class="overlay" id="m-inv">
 <div class="modal">
-  <div class="modal-hdr"><div class="modal-title">${T('add_investment')||'Add Investment'}</div><button class="btn-close" onclick="closeM('m-inv')">✕</button></div>
+  <div class="modal-hdr"><div class="modal-title">Add Investment</div><button class="btn-close" onclick="closeM('m-inv')">✕</button></div>
   <div class="fg">
     <div class="ff"><label>Ticker</label><input type="text" id="inv-code" placeholder="e.g. 7203.T"/></div>
     <div class="ff"><label>Asset Name</label><input type="text" id="inv-name" placeholder="e.g. Toyota"/></div>
@@ -567,6 +595,50 @@ input,select,textarea{font-family:var(--font);}
     <div class="ff"><label>Account</label><select id="inv-acc"></select></div>
   </div>
   <div style="margin-top:18px;"><button class="btn btn-blue" style="width:100%;" onclick="saveInv()">Save</button></div>
+</div>
+</div>
+
+
+
+<div class="overlay" id="m-manage-acc">
+<div class="modal" style="max-height:80vh;display:flex;flex-direction:column;">
+  <div class="modal-hdr">
+    <div class="modal-title">Manage Accounts</div>
+    <button class="btn-close" onclick="closeM('m-manage-acc')">✕</button>
+  </div>
+  <div style="overflow-y:auto;flex:1;" id="manage-acc-list"></div>
+  <div style="padding-top:14px;border-top:1px solid #f1f5f9;margin-top:8px;">
+    <button class="btn btn-blue" style="width:100%;justify-content:center;" onclick="closeM('m-manage-acc');openM('m-add-acc')">+ Add New Account</button>
+  </div>
+</div>
+</div>
+
+<div class="overlay" id="m-edit-acc">
+<div class="modal">
+  <div class="modal-hdr">
+    <div class="modal-title">Edit Account</div>
+    <button class="btn-close" onclick="closeM('m-edit-acc')">✕</button>
+  </div>
+  <input type="hidden" id="edit-acc-id"/>
+  <div class="fg">
+    <div class="ff"><label>Account Name</label><input type="text" id="edit-acc-name" placeholder="e.g. みなと銀行"/></div>
+    <div class="ff"><label>Icon (emoji)</label><input type="text" id="edit-acc-icon" placeholder="🏦" maxlength="2"/></div>
+    <div class="ff"><label>Type</label>
+      <select id="edit-acc-type">
+        <option value="Cash">Cash</option>
+        <option value="Saving">Saving (Bank)</option>
+        <option value="Credit Card">Credit Card</option>
+        <option value="Prepaid">Prepaid / Top-Up</option>
+        <option value="Investment">Investment</option>
+        <option value="Insurance">Insurance</option>
+      </select>
+    </div>
+    <div class="ff"><label>Current Balance</label><input type="number" id="edit-acc-balance" placeholder="0"/></div>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:18px;">
+    <button class="btn btn-ghost" style="flex:1;" onclick="closeM('m-edit-acc')">Cancel</button>
+    <button class="btn btn-blue" style="flex:2;" onclick="saveEditAcc()">Save Changes</button>
+  </div>
 </div>
 </div>
 
@@ -592,7 +664,7 @@ input,select,textarea{font-family:var(--font);}
 
 <div class="overlay" id="m-note">
 <div class="modal">
-  <div class="modal-hdr"><div class="modal-title">${T('add_note')}</div><button class="btn-close" onclick="closeM('m-note')">✕</button></div>
+  <div class="modal-hdr"><div class="modal-title">Add Note</div><button class="btn-close" onclick="closeM('m-note')">✕</button></div>
   <div class="ff" style="margin-bottom:14px;"><label>Title</label><input type="text" id="note-title" placeholder="Evaluation title..."/></div>
   <div class="fg" style="margin-bottom:14px;">
     <div class="ff"><label>Date</label><input type="date" id="note-date"/></div>
@@ -605,14 +677,14 @@ input,select,textarea{font-family:var(--font);}
 
 <div class="overlay" id="m-acc-tx">
 <div class="modal modal-lg">
-  <div class="modal-hdr"><div class="modal-title">${T('account_transactions')||'Account Transactions'}</div><button class="btn-close" onclick="closeM('m-acc-tx')">✕</button></div>
+  <div class="modal-hdr"><div class="modal-title">Account Transactions</div><button class="btn-close" onclick="closeM('m-acc-tx')">✕</button></div>
   <div id="acc-tx-content"></div>
 </div>
 </div>
 
 <div class="overlay" id="m-budget">
 <div class="modal">
-  <div class="modal-hdr"><div class="modal-title">${T('set_budget')||'Set Budget'}</div><button class="btn-close" onclick="closeM('m-budget')">✕</button></div>
+  <div class="modal-hdr"><div class="modal-title">Set Budget</div><button class="btn-close" onclick="closeM('m-budget')">✕</button></div>
   <div id="budget-form-content"></div>
   <button class="btn btn-blue" style="width:100%;margin-top:16px;" onclick="saveBudgets()">Save Budget</button>
 </div>
@@ -620,7 +692,7 @@ input,select,textarea{font-family:var(--font);}
 
 <div class="overlay" id="m-edit-tx">
 <div class="modal">
-  <div class="modal-hdr"><div class="modal-title">${T('edit_tx')||'Edit Transaction'}</div><button class="btn-close" onclick="closeM('m-edit-tx')">✕</button></div>
+  <div class="modal-hdr"><div class="modal-title">Edit Transaction</div><button class="btn-close" onclick="closeM('m-edit-tx')">✕</button></div>
   <div class="fg">
     <div class="ff full"><label>Amount</label><input type="number" id="edit-amount"/></div>
     <div class="ff"><label>Category</label><select id="edit-cat"></select></div>
@@ -634,7 +706,7 @@ input,select,textarea{font-family:var(--font);}
 
 <div class="overlay" id="m-add-acc">
 <div class="modal">
-  <div class="modal-hdr"><div class="modal-title">${T('add_account')}</div><button class="btn-close" onclick="closeM('m-add-acc')">✕</button></div>
+  <div class="modal-hdr"><div class="modal-title">Add Account</div><button class="btn-close" onclick="closeM('m-add-acc')">✕</button></div>
   <div class="fg">
     <div class="ff full"><label>Account Name</label><input type="text" id="new-acc-name" placeholder="e.g. BCA Savings"/></div>
     <div class="ff"><label>Account Group</label>
@@ -669,7 +741,7 @@ let USER = null; // current logged-in user object
 let D = { // local data cache
   accounts: [], transactions: [], investments: [],
   budgets: {}, notes: [],
-  currency: 'JPY', lang: 'en', theme: null, font: 'Geist', fontSize: '14', goal: 100000000, emergencyMonths: 6, lifeWins: [],
+  currency: 'JPY', lang: 'en', theme: null, font: 'Inter', fontSize: '14', goal: 100000000, emergencyMonths: 6, lifeWins: [], wishlist: [], categories: {income:['Salary','Bonus','Freelance','Others'],expense:['Food','Transport','Rent','Utilities','Shopping','Health','Entertainment','Education','Others']},
   categories: {
     income: ['Salary','Bonus','Investment Return','Freelance','Others'],
     expense: ['Food','Transport','Rent','Utilities','Shopping','Health','Entertainment','Education','Others'],
@@ -689,8 +761,13 @@ let idCtr = Date.now();
 const RATES = { JPY:1, USD:0.0067, IDR:153 };
 const SYMS = { JPY:'¥', USD:'$', IDR:'Rp ' };
 function fmt(n) {
-  const v = (n||0) * RATES[D.currency];
-  if (D.currency==='JPY') return SYMS.JPY + Math.round(v).toLocaleString();
+  const num = Number(n)||0;
+  const isNeg = num < 0;
+  const v = Math.abs(num) * (RATES[D.currency]||1);
+  const formatted = D.currency==='JPY'
+    ? SYMS.JPY + Math.round(v).toLocaleString()
+    : (SYMS[D.currency]||'') + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  return isNeg ? '-' + formatted : formatted;
   if (D.currency==='IDR') return SYMS.IDR + Math.round(v).toLocaleString();
   return SYMS.USD + v.toFixed(2);
 }
@@ -809,7 +886,7 @@ function applyNavLabels(){
     if(val) el.textContent=val;
   });
   // Update page title
-  const titleKeys={home:'dashboard',wallets:'accounts',analytic:'analytic',transactions:'transactions',investment:'investment',budget:'budget',notes:'notes',settings:'settings'};
+  const titleKeys={home:'dashboard',wallets:'accounts',analytic:'analytic',transactions:'transactions',investment:'investment',budget:'budget',notes:'notes',settings:'settings',journey:'journey'};
   const titleEl=document.getElementById('page-title');
   if(titleEl&&currentPage) titleEl.textContent=T(titleKeys[currentPage]||currentPage)||currentPage;
   const sc=document.getElementById('sel-currency');
@@ -817,6 +894,155 @@ function applyNavLabels(){
   if(sc) sc.value=D.currency;
   if(sl) sl.value=D.lang;
 }
+function updateTopbarButtons(page){
+  const editBtn = document.getElementById('topbar-edit-btn');
+  const addBtn  = document.getElementById('topbar-add-btn');
+  if(!editBtn||!addBtn) return;
+
+  // Pages with edit button
+  const editPages = {
+    wallets:   { edit:'Manage Accounts',  add:'Add Account'  },
+    analytic:  { edit:null,               add:null           },
+    budget:    { edit:'Edit Budgets',     add:null           },
+    notes:     { edit:null,               add:'Add Note'     },
+    investment:{ edit:null,               add:'Add Asset'    },
+    settings:  { edit:null,               add:null           },
+    transactions:{ edit:null,             add:'Add Transaction'},
+  };
+
+  const cfg = editPages[page];
+  editBtn.style.display = (cfg&&cfg.edit)  ? 'flex' : 'none';
+  addBtn.style.display  = (cfg&&cfg.add)   ? 'flex' : 'none';
+  if(cfg&&cfg.edit) document.getElementById('topbar-edit-label').textContent = cfg.edit;
+  if(cfg&&cfg.add)  document.getElementById('topbar-add-label').textContent  = cfg.add;
+}
+
+function handleTopbarEdit(){
+  if(currentPage==='wallets')    openManageAccounts();
+  if(currentPage==='budget')     openBudgetEdit();
+}
+
+function handleTopbarAdd(){
+  if(currentPage==='wallets')     openM('m-add-acc');
+  if(currentPage==='notes')       openNoteModal();
+  if(currentPage==='investment')  openM('m-inv');
+  if(currentPage==='transactions') openTxModal();
+}
+
+// ---- Manage Accounts modal ----
+function openManageAccounts(){
+  const list = D.accounts.map(a=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f1f5f9;" id="acc-mgr-${a.id}">
+      <span style="font-size:20px;">${a.icon||'💰'}</span>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;">${a.name}</div>
+        <div style="font-size:12px;color:#94a3b8;">${a.group_type}</div>
+      </div>
+      <button onclick="openEditAcc('${a.id}');closeM('m-manage-acc')" style="background:none;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;color:#64748b;">Edit</button>
+      <button onclick="deleteAcc('${a.id}')" style="background:none;border:1px solid #fecaca;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;color:#ef4444;">Delete</button>
+    </div>`).join('');
+
+  document.getElementById('manage-acc-list').innerHTML = list || '<div style="padding:24px;text-align:center;color:#94a3b8;">No accounts yet</div>';
+  openM('m-manage-acc');
+}
+
+async function runSettingsMigration(){
+  // Silently try to add new settings columns if they don't exist yet
+  // This is handled by the fallback in saveSettings - no action needed here
+  // But we save current D state to ensure new columns get populated
+  try { await saveSettings(); } catch(e){}
+}
+
+async function recalcAccountBalances(){
+  // Calculate balance per account from transactions
+  const balances = {};
+  D.accounts.forEach(a=>{ balances[a.id] = 0; });
+
+  // Build name→id map for transactions that stored account names instead of IDs
+  const nameToId = {};
+  D.accounts.forEach(a=>{ nameToId[a.name] = a.id; nameToId[a.id] = a.id; });
+
+  const resolve = (ref) => nameToId[ref] || ref;
+
+  D.transactions.forEach(t=>{
+    const amt = Number(t.amount)||0;
+    if(t.type==='income'){
+      const id = resolve(t.account);
+      if(id && balances[id]!==undefined) balances[id] += amt;
+    } else if(t.type==='expense'){
+      const id = resolve(t.account);
+      if(id && balances[id]!==undefined) balances[id] -= amt;
+    } else if(t.type==='transfer'){
+      const fromId = resolve(t.from_account);
+      const toId   = resolve(t.to_account);
+      if(fromId && balances[fromId]!==undefined) balances[fromId] -= amt;
+      if(toId   && balances[toId]!==undefined)   balances[toId]   += amt;
+    }
+  });
+
+  // Update DB and local state
+  const updates = Object.entries(balances).map(([id,balance])=>
+    sb.from('accounts').update({balance}).eq('id',id)
+  );
+  await Promise.all(updates);
+  D.accounts.forEach(a=>{ if(balances[a.id]!==undefined) a.balance = balances[a.id]; });
+  showToast('💰 Account balances updated!');
+}
+
+/* ================================================================
+   BALANCE ENGINE - auto-update account balance on every tx change
+   ================================================================ */
+async function updateAccountBalance(accId, type, amount, fromAccId, toAccId, oldAccId, oldAmount, isReversal=false){
+  const amt = Number(amount)||0;
+  const sign = isReversal ? -1 : 1; // reversal = undo the effect
+
+  const updates = {}; // accId → delta
+
+  if(type==='income'){
+    const id = resolveAccId(accId);
+    if(id) updates[id] = (updates[id]||0) + (sign * amt);
+  } else if(type==='expense'){
+    const id = resolveAccId(accId);
+    if(id) updates[id] = (updates[id]||0) - (sign * amt);
+  } else if(type==='transfer'){
+    const from = resolveAccId(fromAccId);
+    const to   = resolveAccId(toAccId);
+    if(from) updates[from] = (updates[from]||0) - (sign * amt);
+    if(to)   updates[to]   = (updates[to]||0)   + (sign * amt);
+  }
+
+  // If editing (oldAccId provided), reverse old effect first
+  if(oldAccId && oldAmount!=null){
+    const oldAmt = Number(oldAmount)||0;
+    if(type==='income'){
+      const id = resolveAccId(oldAccId);
+      if(id) updates[id] = (updates[id]||0) - oldAmt;
+    } else if(type==='expense'){
+      const id = resolveAccId(oldAccId);
+      if(id) updates[id] = (updates[id]||0) + oldAmt;
+    }
+  }
+
+  // Apply updates to DB and local state
+  for(const [id, delta] of Object.entries(updates)){
+    if(delta===0) continue;
+    const acc = D.accounts.find(a=>a.id===id);
+    if(!acc) continue;
+    const newBal = Number(acc.balance||0) + delta;
+    acc.balance = newBal;
+    await sb.from('accounts').update({balance: newBal}).eq('id', id);
+  }
+}
+
+function resolveAccId(ref){
+  if(!ref) return null;
+  // Check if it's already a valid ID
+  if(D.accounts.find(a=>a.id===ref)) return ref;
+  // Try matching by name
+  const byName = D.accounts.find(a=>a.name===ref);
+  return byName ? byName.id : null;
+}
+
 function greet(){ const h=new Date().getHours(); return h<12?T('hi_morning'):h<17?T('hi_afternoon'):T('hi_evening'); }
 
 /* ================================================================
@@ -938,10 +1164,14 @@ async function loadUserData() {
     if (sets.data.categories) D.categories = typeof sets.data.categories==='string'?JSON.parse(sets.data.categories):sets.data.categories;
     if (sets.data.font) D.font = sets.data.font;
     if (sets.data.font_size) D.fontSize = sets.data.font_size;
+    if (sets.data.goal) D.goal = Number(sets.data.goal);
+    if (sets.data.emergency_months) D.emergencyMonths = Number(sets.data.emergency_months);
+    if (sets.data.life_wins) D.lifeWins = typeof sets.data.life_wins==='string'?JSON.parse(sets.data.life_wins):sets.data.life_wins;
+    if (sets.data.wishlist) D.wishlist = typeof sets.data.wishlist==='string'?JSON.parse(sets.data.wishlist):sets.data.wishlist;
   }
   // Apply theme & font
   if (D.theme) { document.documentElement.style.setProperty('--blue', D.theme); document.documentElement.style.setProperty('--blue-soft', D.theme+'18'); }
-  if (D.font) { document.documentElement.style.setProperty('--font',`'${D.font}', sans-serif`); document.body.style.fontFamily=`'${D.font}', sans-serif`; }
+  if (D.font) { document.documentElement.style.setProperty('--font', "'"+D.font+"', sans-serif"); document.body.style.fontFamily = "'"+D.font+"', sans-serif"; }
   if (D.fontSize) { document.documentElement.style.fontSize = D.fontSize + 'px'; const ov=Math.round(parseInt(D.fontSize)*2)+'px'; document.documentElement.style.setProperty('--overview-font-size',ov); }
   hideLoading();
 }
@@ -949,6 +1179,8 @@ async function loadUserData() {
 function enterApp() {
   // Save session
   if(USER) localStorage.setItem('reece_user', JSON.stringify({id:USER.id,username:USER.username,avatar:USER.avatar||null}));
+  // Run DB migration silently (add new columns if missing)
+  runSettingsMigration();
   document.getElementById('login-screen').classList.add('out');
   document.getElementById('app').style.display='flex';
   // Update sidebar
@@ -963,6 +1195,96 @@ function enterApp() {
   document.getElementById('topbar-date').textContent=new Date().toLocaleDateString(D.lang==='ja'?'ja-JP':D.lang==='id'?'id-ID':'en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('nav-tx-badge').textContent=D.transactions.length;
   navTo('home', document.querySelector('.nav-item[data-page="home"]'));
+}
+
+function renderJourney(c){
+  const wins = D.lifeWins||[];
+  const goal = D.goal||100000000;
+  const netAsset = D.accounts.reduce((s,a)=>s+Number(a.balance),0);
+  const goalPct = Math.min(100,(netAsset/goal)*100);
+
+  c.innerHTML = `<div class="page" style="max-width:780px;margin:0 auto;">
+    <div style="font-size:22px;font-weight:700;margin-bottom:24px;">🗺️ Plan & Journey</div>
+
+    <!-- Goal Setting -->
+    <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;padding:24px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:600;">🎯 Financial Goal</div>
+        <button onclick="openGoalSettings()" style="background:#f0fdfa;color:#0d9488;border:1px solid #cff0eb;border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;">Edit Goal</button>
+      </div>
+      <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">Target: ${fmt(goal)}</div>
+      <div style="background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden;margin-bottom:8px;">
+        <div style="height:100%;border-radius:99px;background:linear-gradient(90deg,#0d9488,#14b8a6);width:${goalPct.toFixed(1)}%;transition:width 1s;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#64748b;">
+        <span>${fmt(netAsset)} saved</span>
+        <span style="font-weight:600;color:#0d9488;">${goalPct.toFixed(1)}%</span>
+      </div>
+    </div>
+
+    <!-- Wishlist placeholder -->
+    <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;padding:24px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:600;">✨ Wishlist</div>
+        <button onclick="openAddWishlist()" style="background:#f0fdfa;color:#0d9488;border:1px solid #cff0eb;border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;">+ Add</button>
+      </div>
+      <div id="wishlist-container">
+        ${(D.wishlist||[]).length===0
+          ? '<div style="text-align:center;padding:24px;color:#94a3b8;font-size:13px;">No wishlist items yet. Add things you are saving towards!</div>'
+          : (D.wishlist||[]).map(w=>`
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;">
+              <span style="font-size:20px;">${w.emoji||'🛍️'}</span>
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:500;">${w.name}</div>
+                ${w.price?`<div style="font-size:12px;color:#94a3b8;">Target: ${fmt(w.price)}</div>`:''}
+              </div>
+              <button onclick="deleteWishlistItem('${w.id}')" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:14px;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#cbd5e1'">✕</button>
+            </div>`).join('')
+        }
+      </div>
+    </div>
+
+    <!-- Life Wins -->
+    <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;padding:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:600;">🏆 Life Wins</div>
+        <button onclick="openAddWin()" style="background:#f0fdfa;color:#0d9488;border:1px solid #cff0eb;border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;">+ Add Win</button>
+      </div>
+      ${wins.length===0
+        ? '<div style="text-align:center;padding:24px;color:#94a3b8;font-size:13px;">No wins recorded yet. Celebrate your achievements!</div>'
+        : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
+          ${wins.map(w=>`<div style="background:#f8fafc;border-radius:12px;padding:14px;border:1px solid #e5e7eb;">
+            <div style="font-size:24px;margin-bottom:6px;">${w.emoji||'⭐'}</div>
+            <div style="font-size:13px;font-weight:500;color:#0f172a;">${w.text}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">${w.date||''}</div>
+          </div>`).join('')}
+        </div>`
+      }
+    </div>
+  </div>`;
+}
+
+function openAddWishlist(){
+  const name = prompt('What do you want to save for?');
+  if(!name) return;
+  const price = prompt('Target price? (leave empty if not sure)');
+  const emoji = prompt('Emoji?')||'🛍️';
+  if(!D.wishlist) D.wishlist=[];
+  const item = {id:Date.now().toString(),name,price:parseFloat(price)||0,emoji};
+  D.wishlist.push(item);
+  const saved=JSON.parse(localStorage.getItem('reece_user')||'{}');
+  saved.wishlist=D.wishlist;
+  localStorage.setItem('reece_user',JSON.stringify(saved));
+  showToast('✨ Added to wishlist!');
+  navTo('journey',document.querySelector('.nav-item[data-page="journey"]'));
+}
+
+function deleteWishlistItem(id){
+  D.wishlist=(D.wishlist||[]).filter(w=>w.id!==id);
+  const saved=JSON.parse(localStorage.getItem('reece_user')||'{}');
+  saved.wishlist=D.wishlist;
+  localStorage.setItem('reece_user',JSON.stringify(saved));
+  navTo('journey',document.querySelector('.nav-item[data-page="journey"]'));
 }
 
 async function doLogout() {
@@ -1000,11 +1322,13 @@ function navTo(page, el) {
   currentPage=page;
   document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titleKeys={home:'dashboard',wallets:'accounts',analytic:'analytic',transactions:'transactions',investment:'investment',budget:'budget',notes:'notes',settings:'settings'};
+  // Show context-sensitive topbar buttons
+  updateTopbarButtons(page);
+  const titleKeys={home:'dashboard',wallets:'accounts',analytic:'analytic',transactions:'transactions',investment:'investment',budget:'budget',notes:'notes',settings:'settings',journey:'journey'};
   document.getElementById('page-title').textContent=T(titleKeys[page]||page)||page;
   document.getElementById('fab').style.display=['home','transactions','analytic'].includes(page)?'flex':'none';
   const c=document.getElementById('content'); c.innerHTML='';
-  const R={home:renderHome,wallets:renderWallets,analytic:renderAnalytic,transactions:renderTransactions,investment:renderInvestment,budget:renderBudget,notes:renderNotes,settings:renderSettings};
+  const R={home:renderHome,wallets:renderWallets,analytic:renderAnalytic,transactions:renderTransactions,investment:renderInvestment,budget:renderBudget,notes:renderNotes,settings:renderSettings,journey:renderJourney};
   if(R[page]) R[page](c);
 }
 
@@ -1039,87 +1363,117 @@ function renderHome(c) {
 
   c.innerHTML=`<div class="page">
 
-    <!-- ROW 1: Journey (left 60%) + Net Asset (right 40%) -->
-    <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;margin-bottom:16px;align-items:start;">
+    <!-- MAIN GRID: Left stack (Journey + Overview) | Right (Net Asset full height) -->
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:20px;margin-bottom:0;align-items:stretch;">
 
-      <!-- Journey card -->
-      <div style="background:#ffffff;border-radius:14px;border:1.5px solid #cff0eb;padding:24px 26px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:32px;height:32px;border-radius:50%;background:var(--blue-soft);display:flex;align-items:center;justify-content:center;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <!-- LEFT COLUMN: Journey top, then 2 overview cards below -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- Journey card -->
+        <div style="background:rgba(13,148,136,0.06);border-radius:16px;border:1.5px solid rgba(13,148,136,0.2);padding:28px 30px;" onclick="openGoalSettings()" title="Click to customize goal">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:#f0fdfa;display:flex;align-items:center;justify-content:center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <span style="font-size:17px;font-weight:600;color:#0f172a;">The Journey</span>
             </div>
-            <span style="font-size:16px;font-weight:700;color:var(--text);">The Journey</span>
+            <div style="text-align:right;">
+              <div style="font-size:32px;font-weight:700;color:#0d9488;letter-spacing:-1px;line-height:1;" id="goal-pct-home">${goalPctStr}%</div>
+              <div style="font-size:13px;color:#94a3b8;margin-top:2px;">of ${fmt(goal)}</div>
+            </div>
           </div>
-          <div style="text-align:right;">
-            <div style="font-size:28px;font-weight:800;color:var(--blue);font-family:var(--mono);letter-spacing:-1px;" id="goal-pct-home">${goalPctStr}%</div>
-            <div style="font-size:12px;color:var(--text3);">of ${fmt(goal)}</div>
+          <!-- Progress bar -->
+          <div style="background:#f1f5f9;border-radius:99px;height:8px;overflow:hidden;margin-bottom:14px;">
+            <div id="goal-bar-home" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#f97316,#fb923c);width:0%;transition:width 1.2s ease;"></div>
           </div>
+          <div style="font-size:13px;color:#94a3b8;">${fmt(remaining)} to go &nbsp;•&nbsp; Keep going 🚀</div>
         </div>
-        <!-- Progress bar -->
-        <div style="background:var(--surface2);border-radius:99px;height:8px;overflow:hidden;margin-bottom:12px;">
-          <div id="goal-bar-home" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#f97316,#fb923c);width:0%;transition:width 1s ease;"></div>
-        </div>
-        <div style="font-size:13px;color:var(--text3);">${fmt(remaining)} to go &nbsp;•&nbsp; Keep going 🚀</div>
-      </div>
 
-      <!-- Net Asset card — teal bg -->
-      <div style="background:#0d9488;border-radius:14px;padding:22px 24px;color:#fff;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(255,255,255,.08);border-radius:50%;"></div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;opacity:.85;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-          <span style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:.9;">NET ASSET</span>
-        </div>
-        <div style="font-size:28px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;margin-bottom:4px;">${fmt(netAsset)}</div>
-        <div style="font-size:12px;opacity:.7;margin-bottom:16px;">Total Asset Value</div>
-        <div style="font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;opacity:.6;margin-bottom:10px;">ASSET BREAKDOWN</div>
-        ${Object.entries(groupTotals).filter(([,v])=>v>0).slice(0,4).map(([g,v])=>`
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,.12);border-radius:8px;margin-bottom:6px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:14px;">${gIcons[g]||'💰'}</span>
-            <span style="font-size:13px;font-weight:500;">${g==='Saving'?'Cash & Savings':g}</span>
+        <!-- Overview cards: 2 columns -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <!-- Earning Overview -->
+          <div style="background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;padding:24px 26px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div style="font-size:14px;font-weight:500;color:#64748b;">Earning Overview</div>
+              <div style="width:30px;height:30px;border-radius:50%;background:#f0fdfa;display:flex;align-items:center;justify-content:center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+            </div>
+            <div style="font-size:30px;font-weight:700;color:#0f172a;letter-spacing:-1.5px;line-height:1;" id="home-earn-val">${fmt(totalInc)}</div>
+            <div style="font-size:13px;color:#94a3b8;margin-top:10px;">For available of all</div>
           </div>
-          <span style="font-size:13px;font-weight:700;font-family:var(--mono);">${fmt(v)}</span>
-        </div>`).join('')}
-      </div>
-    </div>
+          <!-- Spending Overview -->
+          <div style="background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;padding:24px 26px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div style="font-size:14px;font-weight:500;color:#64748b;">Spending Overview</div>
+              <div style="width:30px;height:30px;border-radius:50%;background:#f0fdfa;display:flex;align-items:center;justify-content:center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+              </div>
+            </div>
+            <div style="font-size:30px;font-weight:700;color:#0f172a;letter-spacing:-1.5px;line-height:1;" id="home-spend-val">${fmt(totalExp)}</div>
+            <div style="font-size:13px;color:#94a3b8;margin-top:10px;">For available of all</div>
+          </div>
+        </div>
 
-    <!-- ROW 2: Earning + Spending side by side — Figma style -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-      <!-- Earning Overview -->
-      <div style="background:#ffffff;border-radius:14px;border:1.5px solid #cff0eb;padding:24px 26px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <div style="font-size:14px;font-weight:500;color:#64748b;">Earning Overview</div>
-          <div style="width:32px;height:32px;border-radius:50%;background:#f0fdfa;display:flex;align-items:center;justify-content:center;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-          </div>
-        </div>
-        <div style="font-size:32px;font-weight:700;color:#0f172a;font-family:var(--mono);letter-spacing:-1.5px;line-height:1;">${fmt(totalInc)}</div>
-        <div style="font-size:13px;color:#94a3b8;margin-top:8px;">For available of all</div>
-      </div>
-      <!-- Spending Overview -->
-      <div style="background:#ffffff;border-radius:14px;border:1.5px solid #cff0eb;padding:24px 26px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <div style="font-size:14px;font-weight:500;color:#64748b;">Spending Overview</div>
-          <div style="width:32px;height:32px;border-radius:50%;background:#f0fdfa;display:flex;align-items:center;justify-content:center;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
-          </div>
-        </div>
-        <div style="font-size:32px;font-weight:700;color:#0f172a;font-family:var(--mono);letter-spacing:-1.5px;line-height:1;">${fmt(totalExp)}</div>
-        <div style="font-size:13px;color:#94a3b8;margin-top:8px;">For available of all</div>
-      </div>
-    </div>
+      </div><!-- end LEFT COLUMN -->
 
-    <!-- ROW 3: Earning vs Spending chart (left) + Confirm Auto Debit (right) -->
-    <div style="display:grid;grid-template-columns:1fr 340px;gap:16px;margin-bottom:16px;">
+      <!-- RIGHT COLUMN: Net Asset full height -->
+      <div style="background:#0d9488;border-radius:16px;padding:28px 26px;color:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:rgba(255,255,255,.07);border-radius:50%;pointer-events:none;"></div>
+        <div style="position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;background:rgba(255,255,255,.05);border-radius:50%;pointer-events:none;"></div>
+
+        <!-- Net Asset header -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;opacity:.85;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+          <span style="font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;">Net Asset</span>
+        </div>
+        <div style="font-size:36px;font-weight:700;letter-spacing:-1.5px;line-height:1;margin-bottom:6px;">${fmt(netAsset)}</div>
+        <div style="font-size:13px;opacity:.7;margin-bottom:24px;">Total Asset Value</div>
+
+        <!-- Asset Breakdown - top 3 only -->
+        <div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:.6;margin-bottom:12px;">ASSET BREAKDOWN</div>
+        <div style="display:flex;flex-direction:column;gap:8px;flex:1;">
+          ${Object.entries(groupTotals).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([g,v])=>`
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(255,255,255,.12);border-radius:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:16px;">${gIcons[g]||'💰'}</div>
+              <span style="font-size:14px;font-weight:500;">${g==='Saving'?'Cash & Savings':g}</span>
+            </div>
+            <span style="font-size:14px;font-weight:600;letter-spacing:-.5px;">${fmt(v)}</span>
+          </div>`).join('')}
+          ${Object.keys(groupTotals).length===0?`
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;opacity:.5;font-size:13px;">No accounts added yet</div>
+          `:''}
+        </div>
+        <!-- View more link -->
+        ${Object.entries(groupTotals).filter(([,v])=>v>0).length>3?`
+        <div onclick="navTo('wallets',document.querySelector('.nav-item[data-page=wallets]'))" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;padding:10px;background:rgba(255,255,255,.1);border-radius:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.2)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">
+          <span style="font-size:13px;font-weight:500;">View all ${Object.entries(groupTotals).filter(([,v])=>v>0).length} accounts</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>`:''}
+      </div><!-- end RIGHT COLUMN -->
+
+    </div><!-- end MAIN GRID -->
+
+    <!-- ROW 3: Chart + Auto Debit -->
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:20px;margin-bottom:20px;margin-top:20px;">
       <!-- Line chart -->
-      <div style="background:#ffffff;border-radius:14px;border:1.5px solid #eaecef;padding:24px 26px;">
-        <div style="font-size:15px;font-weight:600;color:#0f172a;margin-bottom:16px;">Earning vs Spending vs Net Asset</div>
-        <div style="height:220px;position:relative;"><canvas id="home-triple-line"></canvas></div>
+      <div style="background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;padding:28px 32px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:600;color:#0f172a;">Earning vs Spending vs Net Asset</div>
+          <select id="home-period-sel" class="sel" style="font-size:12px;padding:5px 10px;" onchange="setHomePeriod(this.value)">
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+            <option value="all" selected>All Time</option>
+          </select>
+        </div>
+        <div style="height:300px;position:relative;"><canvas id="home-triple-line"></canvas></div>
       </div>
 
       <!-- Confirm Auto Debit -->
-      <div style="background:#ffffff;border-radius:14px;border:1.5px solid #eaecef;padding:24px 26px;">
+      <div style="background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;padding:26px 28px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <span style="font-size:15px;font-weight:700;">Confirm Auto Debit</span>
@@ -1131,7 +1485,7 @@ function renderHome(c) {
               <div style="font-size:14px;font-weight:600;">${t.note||t.category}</div>
               <div style="font-size:12px;color:var(--text3);margin-top:2px;">Due: day ${t.recurring?.day||'-'} each month</div>
             </div>
-            <div style="font-size:15px;font-weight:700;font-family:var(--mono);">${fmt(Number(t.amount)+(t.recurring?.admin||0))}</div>
+            <div style="font-size:15px;font-weight:700;">${fmt(Number(t.amount)+(t.recurring?.admin||0))}</div>
           </div>
           <div style="display:flex;gap:8px;">
             <button onclick="confirmAutoDebit(${t.id})" style="flex:1;padding:8px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">
@@ -1150,8 +1504,8 @@ function renderHome(c) {
       </div>
     </div>
 
-    <!-- ROW 4: Recent Transactions (full width, Figma style) -->
-    <div style="background:#ffffff;border-radius:14px;border:1.5px solid #eaecef;overflow:hidden;">
+    <!-- Recent Transactions -->
+    <div style="background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;">
       <div style="padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
         <div style="font-size:15px;font-weight:600;color:#0f172a;">Recent Transactions</div>
         <button class="btn btn-blue btn-sm" onclick="openTxModal()">+ Add</button>
@@ -1197,15 +1551,43 @@ function buildTxListFigma(txs){
         <div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.note||t.category||'Transaction'}</div>
         <div style="font-size:12px;color:var(--text3);margin-top:1px;">${t.category||t.type} &nbsp;•&nbsp; ${t.date}</div>
       </div>
-      <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:${color};white-space:nowrap;">${sign}${fmt(Number(t.amount))}</div>
+      <div style="font-size:15px;font-weight:700;color:${color};white-space:nowrap;">${sign}${fmt(Number(t.amount))}</div>
     </div>`;
   }).join('');
 }
 
+let _homePeriod = 'all';
+function setHomePeriod(p){
+  _homePeriod = p;
+  // Refilter transactions by period
+  const now = new Date();
+  const cutoff = p==='week' ? new Date(now-7*86400000).toISOString().split('T')[0]
+               : p==='month' ? `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`
+               : p==='year'  ? `${now.getFullYear()}-01-01`
+               : '0000-01-01';
+  // Update earning/spending cards
+  const filtered = D.transactions.filter(t=> !t.date || t.date >= cutoff);
+  const inc = filtered.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0);
+  const exp = filtered.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);
+  const earnEl = document.getElementById('home-earn-val');
+  const spendEl = document.getElementById('home-spend-val');
+  if(earnEl) earnEl.textContent = fmt(inc);
+  if(spendEl) spendEl.textContent = fmt(exp);
+  drawHomeTripleLine();
+}
+
 function drawHomeTripleLine(){
   const ctx=document.getElementById('home-triple-line'); if(!ctx) return;
+  // Destroy previous if exists
+  const existingC=Chart.getChart(ctx);
+  if(existingC) existingC.destroy();
+
+  const now=new Date();
+  const cutoff=_homePeriod==='week'?new Date(now-7*86400000).toISOString().split('T')[0]
+              :_homePeriod==='month'?`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`
+              :_homePeriod==='year'?`${now.getFullYear()}-01-01`:'0000-01-01';
   const byM={};
-  D.transactions.forEach(t=>{
+  D.transactions.filter(t=>!t.date||t.date>=cutoff).forEach(t=>{
     if(!t.date) return;
     const k=t.date.substring(0,7);
     if(!byM[k]) byM[k]={inc:0,exp:0};
@@ -1213,28 +1595,114 @@ function drawHomeTripleLine(){
     if(t.type==='expense') byM[k].exp+=Number(t.amount);
   });
   const keys=Object.keys(byM).sort();
-  const labels=keys.map(k=>{const [y,m]=k.split('-');return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1];});
+  const mnNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const labels=keys.map(k=>mnNames[parseInt(k.split('-')[1])-1]);
   let net=0;
   const netData=keys.map(k=>{ net+=byM[k].inc-byM[k].exp; return net; });
-  const TT={backgroundColor:'rgba(15,23,42,.88)',bodyFont:{family:'inherit',size:11},padding:10,cornerRadius:8,titleFont:{family:'inherit',size:12,weight:'bold'}};
-  new Chart(ctx,{type:'line',
-    data:{labels,datasets:[
-      {label:'Earning', data:keys.map(k=>byM[k].inc), borderColor:'#0d9488', backgroundColor:'rgba(13,148,136,.04)', fill:false, tension:.4, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:'#0d9488', pointBorderWidth:2, borderWidth:2},
-      {label:'Spending',data:keys.map(k=>byM[k].exp), borderColor:'#14b8a6', backgroundColor:'rgba(20,184,166,.04)', fill:false, tension:.4, pointRadius:3, pointBackgroundColor:'#fff', pointBorderColor:'#14b8a6', pointBorderWidth:1.5, borderWidth:1.5, borderDash:[4,3]},
-      {label:'Net Asset',data:netData, borderColor:'#0f766e', backgroundColor:'rgba(15,118,110,.04)', fill:false, tension:.4, pointRadius:4, pointBackgroundColor:'#fff', pointBorderColor:'#0f766e', pointBorderWidth:2, borderWidth:2.5},
-    ]},
+
+  new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {
+          label:'Earning',
+          data:keys.map(k=>byM[k].inc),
+          borderColor:'#0d9488',
+          backgroundColor:'transparent',
+          fill:false,
+          tension:.4,
+          pointRadius:4,
+          pointBackgroundColor:'#fff',
+          pointBorderColor:'#0d9488',
+          pointBorderWidth:2,
+          pointHoverRadius:6,
+          borderWidth:2,
+          borderDash:[6,4],
+        },
+        {
+          label:'Spending',
+          data:keys.map(k=>byM[k].exp),
+          borderColor:'#0d9488',
+          backgroundColor:'transparent',
+          fill:false,
+          tension:.4,
+          pointRadius:4,
+          pointBackgroundColor:'#fff',
+          pointBorderColor:'#0d9488',
+          pointBorderWidth:2,
+          pointHoverRadius:6,
+          borderWidth:2,
+          borderDash:[6,4],
+        },
+        {
+          label:'Net Asset',
+          data:netData,
+          borderColor:'#0d9488',
+          backgroundColor:'rgba(13,148,136,.06)',
+          fill:false,
+          tension:.4,
+          pointRadius:4,
+          pointBackgroundColor:'#fff',
+          pointBorderColor:'#0d9488',
+          pointBorderWidth:2,
+          pointHoverRadius:6,
+          borderWidth:2.5,
+        }
+      ]
+    },
     options:{
-      responsive:true,maintainAspectRatio:false,
+      responsive:true,
+      maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{
-        legend:{position:'bottom',labels:{font:{family:'inherit',size:12},boxWidth:10,padding:16,usePointStyle:true,pointStyleWidth:10}},
-        tooltip:{...TT,callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.raw)}`}}
+        legend:{
+          position:'bottom',
+          labels:{
+            color:'#0d9488',
+            font:{size:12},
+            boxWidth:20,
+            boxHeight:2,
+            padding:20,
+            usePointStyle:false,
+          }
+        },
+        tooltip:{
+          backgroundColor:'#fff',
+          borderColor:'#e5e7eb',
+          borderWidth:1,
+          titleColor:'#0f172a',
+          bodyColor:'#64748b',
+          titleFont:{size:13,weight:'600'},
+          bodyFont:{size:12},
+          padding:12,
+          cornerRadius:10,
+          callbacks:{
+            label:ctx=>`  ${ctx.dataset.label}: ${fmt(ctx.raw)}`
+          }
+        }
       },
       scales:{
-        x:{grid:{display:false},ticks:{font:{size:11},color:'var(--text3)'}},
-        y:{grid:{color:'rgba(0,0,0,.05)',lineWidth:.8},ticks:{font:{size:10},color:'var(--text3)',callback:v=>fmt(v)}}
+        x:{
+          grid:{display:false},
+          border:{display:false},
+          ticks:{color:'#94a3b8',font:{size:11},maxRotation:0}
+        },
+        y:{
+          grid:{color:'rgba(0,0,0,.04)',lineWidth:1},
+          border:{display:false,dash:[4,4]},
+          ticks:{
+            color:'#94a3b8',
+            font:{size:10},
+            callback:v=>{
+              if(Math.abs(v)>=1000000) return (v/1000000).toFixed(1)+'M';
+              if(Math.abs(v)>=1000) return (v/1000).toFixed(0)+'K';
+              return v;
+            }
+          }
+        }
       },
-      animation:{duration:800,easing:'easeInOutQuart'}
+      animation:{duration:1000,easing:'easeInOutQuart'}
     }
   });
 }
@@ -1370,84 +1838,92 @@ function drawCfBar(type){
    ACCOUNTS
    ================================================================ */
 function renderWallets(c){
-  const GC={Cash:'var(--transfer)',Saving:'var(--blue)',Prepaid:'var(--matcha)','Credit Card':'var(--expense)',Insurance:'var(--invest)',Investment:'var(--invest)'};
-  const GB={Cash:'var(--transfer-soft)',Saving:'var(--blue-soft)',Prepaid:'var(--matcha-soft)','Credit Card':'var(--expense-soft)',Insurance:'var(--invest-soft)',Investment:'var(--invest-soft)'};
-  const totalAssets = D.accounts.filter(a=>a.group_type!=='Credit Card').reduce((s,a)=>s+Math.max(0,Number(a.balance)),0);
-  const totalDebt   = D.accounts.filter(a=>a.group_type==='Credit Card').reduce((s,a)=>s+Number(a.balance),0);
+  // Group accounts by type
+  const groups = {};
+  D.accounts.forEach(a=>{
+    const g = a.group_type || 'Saving';
+    if(!groups[g]) groups[g] = [];
+    groups[g].push(a);
+  });
 
-  // Build account rows as plain string (no nested template literals)
-  let accRows = '';
-  if(D.accounts.length === 0){
-    accRows = '<div style="text-align:center;padding:40px;color:var(--text3)">No accounts yet. Add your first account.</div>';
-  } else {
-    D.accounts.forEach(function(a, idx){
-      const isLast  = idx === D.accounts.length - 1;
-      const color   = GC[a.group_type] || 'var(--blue)';
-      const bg      = GB[a.group_type] || 'var(--blue-soft)';
-      const bal     = Number(a.balance);
-      const balColor= (a.group_type==='Credit Card' && bal < 0) ? 'var(--expense)' : color;
-      const icon    = a.icon || '\u{1F4B0}';
-      const border  = isLast ? 'none' : '1px solid var(--border)';
-      accRows += '<div onclick="showAccTx(\''+a.id+'\')" style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:'+border+';cursor:pointer;transition:background .12s;" onmouseover="this.style.background=\'var(--surface2)\'" onmouseout="this.style.background=\'\'">'
-              + '<div style="width:42px;height:42px;border-radius:12px;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">'+icon+'</div>'
-              + '<div style="flex:1;min-width:0;">'
-              +   '<div style="font-size:14px;font-weight:700;">'+a.name+'</div>'
-              +   '<div style="font-size:11px;color:var(--text3);margin-top:1px;">'+a.group_type+'</div>'
-              + '</div>'
-              + '<div style="text-align:right;">'
-              +   '<div style="font-family:var(--mono);font-size:16px;font-weight:800;color:'+balColor+'">'+fmt(bal)+'</div>'
-              +   '<div style="font-size:10px;color:var(--text3);margin-top:2px;">→ view history</div>'
-              + '</div>'
-              + '</div>';
+  // Calculate totals
+  const totalAssets = D.accounts
+    .filter(a=>a.group_type!=='Credit Card')
+    .reduce((s,a)=>s+Math.max(0,Number(a.balance)),0);
+  const totalLiab = D.accounts
+    .filter(a=>a.group_type==='Credit Card')
+    .reduce((s,a)=>s+Number(a.balance),0);
+  const totalNet = totalAssets + totalLiab;
+
+  // Group order and labels
+  const GROUP_ORDER = ['Cash','Saving','Prepaid','Investment','Credit Card','Insurance'];
+  const GROUP_LABELS = {
+    Cash:'Cash', Saving:'Accounts', Prepaid:'Top-Up/Prepaid',
+    Investment:'Investments', 'Credit Card':'Card', Insurance:'Insurance'
+  };
+
+  // Build rows
+  let rows = '';
+  GROUP_ORDER.forEach(gKey => {
+    const accs = groups[gKey];
+    if(!accs || !accs.length) return;
+
+    const isLiab = gKey === 'Credit Card';
+    const groupTotal = accs.reduce((s,a)=>s+Number(a.balance),0);
+    const groupColor = isLiab ? '#ef4444' : '#3b82f6';
+
+    // Group header row
+    rows += `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 24px;background:#f8fafc;border-bottom:1px solid #f1f5f9;">
+      <span style="font-size:13px;color:#94a3b8;font-weight:500;">${GROUP_LABELS[gKey]||gKey}</span>
+      ${isLiab ? `
+        <div style="display:flex;gap:40px;text-align:right;">
+          <div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px;">Balance Payable</div><div style="font-size:13px;color:${groupColor};">¥ ${Math.abs(groupTotal).toLocaleString()}</div></div>
+          <div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px;">Outst. Balance</div><div style="font-size:13px;color:${groupColor};">¥ ${Math.abs(groupTotal).toLocaleString()}</div></div>
+        </div>
+      ` : `<span style="font-size:13px;color:${groupColor};">¥ ${groupTotal.toLocaleString()}</span>`}
+    </div>`;
+
+    // Account rows
+    accs.forEach(a => {
+      const bal = Number(a.balance);
+      const balColor = isLiab ? '#ef4444' : bal > 0 ? '#3b82f6' : '#94a3b8';
+      rows += `<div onclick="showAccTx('${a.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px 14px 36px;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .1s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
+        <span style="font-size:14px;color:#0f172a;font-weight:400;">${a.name}</span>
+        ${isLiab ? `
+          <div style="display:flex;gap:40px;text-align:right;">
+            <span style="font-size:14px;color:${balColor};">¥ ${Math.abs(bal).toLocaleString()}</span>
+            <span style="font-size:14px;color:${balColor};">¥ ${Math.abs(bal).toLocaleString()}</span>
+          </div>
+        ` : `<span style="font-size:14px;color:${balColor};">¥ ${bal.toLocaleString()}</span>`}
+      </div>`;
     });
-  }
+  });
 
-  const chartHeight = Math.max(160, D.accounts.length * 48);
-  const debtRow = totalDebt !== 0
-    ? '<div style="font-size:12px;color:var(--expense);margin-top:2px;">Credit outstanding: '+fmt(Math.abs(totalDebt))+'</div>'
-    : '';
+  c.innerHTML = `<div class="page" style="padding:0;">
+    <!-- Header summary -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;background:#fff;border-bottom:1px solid #e5e7eb;">
+      <div style="display:flex;gap:48px;">
+        <div>
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:4px;">Assets</div>
+          <div style="font-size:18px;font-weight:600;color:#3b82f6;">¥ ${totalAssets.toLocaleString()}</div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:4px;">Liabilities</div>
+          <div style="font-size:18px;font-weight:600;color:#ef4444;">¥ ${totalLiab.toLocaleString()}</div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:4px;">Total</div>
+          <div style="font-size:18px;font-weight:600;color:#0f172a;">¥ ${totalNet.toLocaleString()}</div>
+        </div>
+      </div>
+      <button onclick="openM('m-add-acc')" style="background:#0d9488;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:500;cursor:pointer;">+ Add Account</button>
+    </div>
 
-  c.innerHTML = '<div class="page">'
-    + '<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;">'
-    +   '<div>'
-    +     '<div style="font-size:12px;color:var(--text3);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;">'+T('total_assets')+'</div>'
-    +     '<div style="font-size:36px;font-weight:800;font-family:var(--mono);letter-spacing:-2px;color:var(--blue)">'+fmt(totalAssets)+'</div>'
-    +     debtRow
-    +   '</div>'
-    +   '<button class="btn btn-blue" onclick="openM(\'m-add-acc\')">'+T('add_account')+'</button>'
-    + '</div>'
-    + '<div class="card" style="overflow:hidden;margin-bottom:16px;">'+accRows+'</div>'
-    + '<div class="card card-p">'
-    +   '<div style="font-size:14px;font-weight:700;margin-bottom:14px;">'+T('portfolio')+'</div>'
-    +   '<div style="height:'+chartHeight+'px;position:relative;"><canvas id="wallet-donut"></canvas></div>'
-    + '</div>'
-    + '</div>';
-
-  // Draw donut chart
-  var ctx = document.getElementById('wallet-donut');
-  if(ctx && D.accounts.length){
-    var COLORS = ['#4a7cff','#3ec9a7','#f0a500','#7c5cbf','#f05c6e','#3bb8c4','#5a9e6f','#e85d40'];
-    new Chart(ctx,{
-      type:'doughnut',
-      data:{
-        labels: D.accounts.map(function(a){return a.name;}),
-        datasets:[{
-          data: D.accounts.map(function(a){return Math.abs(Number(a.balance))||0.01;}),
-          backgroundColor: COLORS,
-          borderWidth:4, borderColor:'#fff', hoverOffset:12
-        }]
-      },
-      options:{
-        cutout:'65%', responsive:true, maintainAspectRatio:false,
-        plugins:{
-          legend:{position:'right',labels:{font:{family:'Geist',size:12},boxWidth:12,padding:14,usePointStyle:true}},
-          tooltip:{backgroundColor:'rgba(17,24,39,.88)',titleFont:{family:'Geist',size:12,weight:'bold'},bodyFont:{family:'Geist Mono',size:11},padding:12,cornerRadius:8,
-            callbacks:{label:function(ctx){return ctx.label+': '+fmt(ctx.raw);}}}
-        },
-        animation:{animateRotate:true,duration:800,easing:'easeInOutQuart'}
-      }
-    });
-  }
+    <!-- Account list grouped -->
+    <div style="background:#fff;border-radius:0;">
+      ${rows || '<div style="padding:40px;text-align:center;color:#94a3b8;">No accounts yet</div>'}
+    </div>
+  </div>`;
 }
 
 function showAccTx(accId){
@@ -1577,306 +2053,334 @@ function _makeChart(id, config){
 }
 
 function renderAnalytic(c){
-  _aTxs = D.transactions.slice();
-  _aGran = 'month';
-  Object.keys(_aCharts).forEach(k=>_destroyChart(k));
-  _aCharts = {};
+  const txs = D.transactions;
+  const now = new Date();
+  const nowY = now.getFullYear();
+  const nowM = now.getMonth();
 
-  c.innerHTML = `<div class="page">
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;" id="a-period-bar">
-      <button class="pbtn" data-p="weekly"  onclick="aSetPeriod('weekly')">${T('weekly')}</button>
-      <button class="pbtn" data-p="monthly" onclick="aSetPeriod('monthly')">${T('monthly')}</button>
-      <button class="pbtn" data-p="yearly"  onclick="aSetPeriod('yearly')">${T('yearly')}</button>
-      <button class="pbtn" data-p="all"     onclick="aSetPeriod('all')">${T('all_time')}</button>
-      <button class="pbtn" data-p="custom"  onclick="aSetPeriod('custom')">${T('custom')} ▾</button>
-    </div>
-    <div id="a-custom-box" style="display:none;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;padding:12px;background:var(--surface2);border-radius:var(--radius-sm);">
-      <span style="font-size:12px;color:var(--text2);font-weight:600;">${T('from')||'From'}</span>
-      <input type="date" id="a-cs" class="sel" style="font-size:12px;padding:6px 10px;"/>
-      <span style="font-size:12px;color:var(--text2);font-weight:600;">To</span>
-      <input type="date" id="a-ce" class="sel" style="font-size:12px;padding:6px 10px;"/>
-      <button class="btn btn-blue btn-sm" onclick="aApplyCustom()">Apply</button>
-    </div>
-    <div id="a-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;"></div>
-    <div id="a-cat-badge" style="display:none;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--blue-soft);border:1px solid #c0d0ff;border-radius:var(--radius-sm);margin-bottom:12px;">
-      <span style="font-size:13px;font-weight:600;color:var(--blue)">🔍 Filtered: <span id="a-cat-label"></span></span>
-      <button onclick="aClearCat()" style="background:none;border:none;font-size:12px;color:var(--blue);cursor:pointer;font-weight:600;">✕ Clear filter</button>
-    </div>
-    <div class="two-col" style="margin-bottom:16px;">
-      <div class="card card-p">
-        <div style="font-size:14px;font-weight:700;margin-bottom:2px;">💙 Income by Category</div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:12px;">Click segment → drill into trend</div>
-        <div style="height:200px;position:relative;"><canvas id="a-inc"></canvas></div>
+  // ── helpers ──────────────────────────────────────────────
+  const byMonth = {}; // k=YYYY-MM → {inc,exp}
+  txs.forEach(t=>{
+    if(!t.date) return;
+    const k = t.date.substring(0,7);
+    if(!byMonth[k]) byMonth[k]={inc:0,exp:0};
+    if(t.type==='income')  byMonth[k].inc += Number(t.amount);
+    if(t.type==='expense') byMonth[k].exp += Number(t.amount);
+  });
+
+  const keys = Object.keys(byMonth).sort();
+  const last12 = keys.slice(-12);
+
+  const totalInc = txs.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0);
+  const totalExp = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);
+  const netAsset = D.accounts.reduce((s,a)=>s+Number(a.balance),0);
+
+  // Savings rate
+  const avgInc = last12.length ? last12.reduce((s,k)=>s+byMonth[k].inc,0)/last12.length : 0;
+  const avgExp = last12.length ? last12.reduce((s,k)=>s+byMonth[k].exp,0)/last12.length : 0;
+  const savingsRate = avgInc > 0 ? Math.round(((avgInc-avgExp)/avgInc)*100) : 0;
+  const savingsColor = savingsRate>=30?'#0d9488':savingsRate>=15?'#f59e0b':'#ef4444';
+  const savingsLabel = savingsRate>=30?'Sehat 🟢':savingsRate>=15?'Cukup 🟡':'Perhatian 🔴';
+
+  // Runway (months of expenses covered by assets)
+  const runway = avgExp>0 ? Math.floor(netAsset/avgExp) : 0;
+  const runwayColor = runway>=12?'#0d9488':runway>=6?'#f59e0b':'#ef4444';
+
+  // Goal projection
+  const goal = D.goal||100000000;
+  const monthlyNet = avgInc - avgExp;
+  const gap = Math.max(0, goal - netAsset);
+  const monthsToGoal = monthlyNet > 0 ? Math.ceil(gap/monthlyNet) : 999;
+  const projDate = new Date(now.getFullYear(), now.getMonth()+monthsToGoal, 1);
+  const projStr = monthsToGoal<999 ? projDate.toLocaleDateString('id-ID',{month:'long',year:'numeric'}).toUpperCase() : 'Unknown';
+  const goalPct = Math.min(100,(netAsset/goal)*100);
+
+  // Income by category
+  const incCats = {};
+  txs.filter(t=>t.type==='income').forEach(t=>{ incCats[t.category]=(incCats[t.category]||0)+Number(t.amount); });
+  const topIncCats = Object.entries(incCats).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  // Expense breakdown (treemap data)
+  const expCats = {};
+  txs.filter(t=>t.type==='expense').forEach(t=>{ expCats[t.category]=(expCats[t.category]||0)+Number(t.amount); });
+  const topExpCats = Object.entries(expCats).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const totalExpAll = topExpCats.reduce((s,[,v])=>s+v,0);
+
+  // Lifestyle creep check
+  const firstHalf = last12.slice(0,6).reduce((s,k)=>s+byMonth[k].exp,0)/Math.max(1,6);
+  const secondHalf = last12.slice(6).reduce((s,k)=>s+byMonth[k].exp,0)/Math.max(1,last12.slice(6).length);
+  const lifestyleCreep = secondHalf > firstHalf*1.1;
+
+  const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  c.innerHTML = `<div class="page" style="max-width:100%;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <div>
+        <div style="font-size:20px;font-weight:700;color:#0f172a;">Analytics Dashboard: Future & Behavior</div>
+        <div style="font-size:13px;color:#94a3b8;margin-top:2px;">${now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
       </div>
-      <div class="card card-p">
-        <div style="font-size:14px;font-weight:700;margin-bottom:2px;">🔴 Expense by Category</div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:12px;">Click segment → drill into trend</div>
-        <div style="height:200px;position:relative;"><canvas id="a-exp"></canvas></div>
-      </div>
     </div>
-    <div class="card card-p" style="margin-bottom:16px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <div>
-          <div style="font-size:14px;font-weight:700;">${T('trend')}</div>
-          <div style="font-size:11px;color:var(--text3);" id="a-trend-label"></div>
+
+    <!-- Two column layout -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+      <!-- LEFT: Predictive Analytics -->
+      <div>
+        <div style="font-size:15px;font-weight:600;color:#0f172a;margin-bottom:14px;">Predictive Analytics <span style="font-size:12px;color:#94a3b8;font-weight:400;">(The "Future View")</span></div>
+
+        <!-- Time to Goal card -->
+        <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;padding:24px 26px;margin-bottom:14px;">
+          <div style="font-size:13px;font-weight:600;color:#94a3b8;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;">Time to Goal: ${fmt(goal)}</div>
+          <div style="font-size:32px;font-weight:800;color:#0f172a;letter-spacing:-1px;line-height:1.1;margin-bottom:4px;">Estimasi Finish:</div>
+          <div style="font-size:28px;font-weight:800;color:#0d9488;letter-spacing:-1px;margin-bottom:2px;">${projStr}</div>
+          <div style="font-size:14px;color:#94a3b8;margin-bottom:20px;">(${monthsToGoal<999?monthsToGoal+' bulan lagi':'Data belum cukup'})</div>
+          <!-- Progress bar -->
+          <div style="background:#f1f5f9;border-radius:99px;height:28px;overflow:hidden;position:relative;margin-bottom:10px;">
+            <div style="height:100%;border-radius:99px;background:linear-gradient(90deg,#0d9488,#14b8a6,#5eead4);width:${goalPct.toFixed(1)}%;transition:width 1s ease;display:flex;align-items:center;padding:0 12px;">
+              ${goalPct>5?`<span style="font-size:12px;font-weight:700;color:#fff;">~${goalPct.toFixed(1)}%</span>`:''}
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;">
+            <span>${fmt(netAsset)}</span>
+            <span>${fmt(goal)}</span>
+          </div>
         </div>
-        <div style="display:flex;gap:6px;">
-          <button class="pbtn active" id="tg-m" onclick="aSetGran('month')" style="padding:5px 10px;font-size:11px;">${T('monthly')}</button>
-          <button class="pbtn"        id="tg-w" onclick="aSetGran('week')"  style="padding:5px 10px;font-size:11px;">${T('weekly')}</button>
+
+        <!-- Savings Rate + Runway -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+
+          <!-- Savings Rate -->
+          <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;padding:20px;position:relative;overflow:hidden;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;margin-bottom:12px;">SAVINGS RATE</div>
+            <!-- Gauge arc using SVG -->
+            <div style="position:relative;text-align:center;margin-bottom:8px;">
+              <svg viewBox="0 0 120 70" width="120" height="70" style="overflow:visible;">
+                <path d="M10,60 A50,50,0,0,1,110,60" fill="none" stroke="#f1f5f9" stroke-width="12" stroke-linecap="round"/>
+                <path d="M10,60 A50,50,0,0,1,110,60" fill="none" stroke="${savingsColor}" stroke-width="12" stroke-linecap="round"
+                  stroke-dasharray="${Math.PI*50*Math.min(savingsRate,100)/100} ${Math.PI*50}"
+                  style="transition:stroke-dasharray 1s ease;"/>
+              </svg>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,10%);font-size:22px;font-weight:800;color:#0f172a;">${savingsRate}%</div>
+            </div>
+            <div style="text-align:center;font-size:13px;font-weight:600;color:${savingsColor};">${savingsLabel}</div>
+            ${lifestyleCreep?'<div style="margin-top:8px;background:#fef3c7;border-radius:6px;padding:5px 8px;font-size:11px;color:#92400e;text-align:center;">⚠️ lifestyle-creep warning</div>':''}
+          </div>
+
+          <!-- Runway -->
+          <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;padding:20px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;margin-bottom:8px;">RUNWAY</div>
+            <div style="font-size:13px;color:#64748b;margin-bottom:16px;">Napas Keuangan</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+              <div style="width:48px;height:48px;border-radius:12px;background:${runwayColor}18;display:flex;align-items:center;justify-content:center;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${runwayColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div style="font-size:28px;font-weight:800;color:#0f172a;">${runway} <span style="font-size:14px;font-weight:500;color:#94a3b8;">Bulan</span></div>
+            </div>
+            <div style="font-size:11px;color:#94a3b8;line-height:1.5;">Berdasarkan Aset Bersih &<br/>Pengeluaran Rata-rata</div>
+          </div>
         </div>
       </div>
-      <div style="height:260px;position:relative;"><canvas id="a-trend"></canvas></div>
-    </div>
-    <div class="card card-p">
-      <div style="font-size:14px;font-weight:700;margin-bottom:14px;">${T('account_balance')}</div>
-      <div style="height:${Math.max(140,D.accounts.length*44)}px;position:relative;"><canvas id="a-acc"></canvas></div>
+
+      <!-- RIGHT: Behavioral Patterns -->
+      <div>
+        <div style="font-size:15px;font-weight:600;color:#0f172a;margin-bottom:14px;">Behavioral Patterns <span style="font-size:12px;color:#94a3b8;font-weight:400;">(The "Review View")</span></div>
+
+        <!-- Trend Income bar chart by category -->
+        <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;padding:22px 24px;margin-bottom:14px;">
+          <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;">Trend Income — Last 12 Months</div>
+          <div style="height:200px;"><canvas id="ac-income-bar"></canvas></div>
+        </div>
+
+        <!-- Spending Breakdown treemap-style -->
+        <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;padding:22px 24px;">
+          <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:6px;">Spending Breakdown <span style="font-size:12px;color:#94a3b8;">(Essential vs Lifestyle)</span></div>
+          <!-- Visual treemap using CSS grid proportional -->
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;border-radius:10px;overflow:hidden;">
+            ${topExpCats.map(([cat,val],i)=>{
+              const pct = totalExpAll>0?(val/totalExpAll*100).toFixed(1):0;
+              const colors=['#0d9488','#14b8a6','#0f766e','#5eead4','#99f6e4','#ccfbf1','#f0fdfa','#94a3b8'];
+              const textColor = i<3?'#fff':'#0f172a';
+              const minH = Math.max(48, pct*1.8);
+              return `<div style="background:${colors[i]};border-radius:6px;padding:10px 10px;flex:${pct};min-width:60px;min-height:${minH}px;display:flex;flex-direction:column;justify-content:flex-end;cursor:default;" title="${cat}: ${fmt(val)}">
+                <div style="font-size:12px;font-weight:600;color:${textColor};line-height:1.2;">${cat.length>10?cat.substring(0,9)+'…':cat}</div>
+                <div style="font-size:11px;color:${textColor};opacity:.8;">${pct}%</div>
+              </div>`;
+            }).join('')}
+          </div>
+          <!-- Insight -->
+          <div style="font-size:12px;color:#64748b;padding:8px 12px;background:#f8fafc;border-radius:8px;">
+            💡 ${topExpCats.length>0?`Top spending: ${topExpCats[0][0]} (${totalExpAll>0?((topExpCats[0][1]/totalExpAll)*100).toFixed(1):0}% of total)`:'No expense data yet'}
+            ${lifestyleCreep?' &nbsp;·&nbsp; ⚠️ Spending increased vs 6 months ago':''}
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>`;
 
-  // Default to 'all' so data is always visible on first load
-  aSetPeriod('all');
+  // Draw income trend bar chart
+  setTimeout(()=>{
+    const ctx = document.getElementById('ac-income-bar');
+    if(!ctx) return;
+    const existing = Chart.getChart(ctx);
+    if(existing) existing.destroy();
+
+    const COLORS=['#0d9488','#14b8a6','#0f766e','#5eead4','#99f6e4'];
+    // Build dataset per top income category, per month
+    const datasets = topIncCats.slice(0,3).map(([cat],ci)=>{
+      const data = last12.map(k=>{
+        return txs
+          .filter(t=>t.type==='income'&&t.category===cat&&t.date&&t.date.startsWith(k))
+          .reduce((s,t)=>s+Number(t.amount),0);
+      });
+      return {label:cat, data, backgroundColor:COLORS[ci], borderRadius:4, borderSkipped:false};
+    });
+
+    // If no category breakdown, just show total
+    if(!datasets.length){
+      datasets.push({
+        label:'Income',
+        data:last12.map(k=>byMonth[k].inc),
+        backgroundColor:'#0d9488', borderRadius:4, borderSkipped:false
+      });
+    }
+
+    new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:last12.map(k=>MN[parseInt(k.split('-')[1])-1]),
+        datasets
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{
+          legend:{position:'top',labels:{font:{size:11},boxWidth:10,padding:12,usePointStyle:true}},
+          tooltip:{
+            backgroundColor:'#1e293b',
+            titleFont:{size:12,weight:'600'},
+            bodyFont:{size:11},
+            padding:10,
+            cornerRadius:8,
+            callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.raw)}`}
+          }
+        },
+        scales:{
+          x:{grid:{display:false},ticks:{font:{size:10},color:'#94a3b8'}},
+          y:{grid:{color:'rgba(0,0,0,.04)'},border:{display:false},
+             ticks:{font:{size:10},color:'#94a3b8',callback:v=>v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(0)+'K':v}}
+        },
+        animation:{duration:800,easing:'easeOutQuart'}
+      }
+    });
+  },100);
 }
 
-function aSetPeriod(p){
-  document.querySelectorAll('#a-period-bar .pbtn').forEach(b=>b.classList.toggle('active', b.dataset.p===p));
-  const box = document.getElementById('a-custom-box');
-  if(box) box.style.display = p==='custom' ? 'flex' : 'none';
-  if(p==='custom') return;
-  const now = new Date();
-  _aTxs = D.transactions.filter(t=>{
-    if(!t.date) return false;
-    const d = new Date(t.date);
-    if(p==='weekly')  return (now-d)/864e5 <= 7;
-    if(p==='monthly') return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
-    if(p==='yearly')  return d.getFullYear()===now.getFullYear();
-    return true;
-  });
-  const badge = document.getElementById('a-cat-badge');
-  if(badge) badge.style.display='none';
-  aDrawAll();
-}
-
-function aApplyCustom(){
-  const s=document.getElementById('a-cs')?.value;
-  const e=document.getElementById('a-ce')?.value;
-  if(!s&&!e){showToast('⚠️ Pick at least one date');return;}
-  _aTxs = D.transactions.filter(t=>t.date&&(!s||t.date>=s)&&(!e||t.date<=e));
-  const badge = document.getElementById('a-cat-badge');
-  if(badge) badge.style.display='none';
-  aDrawAll();
-}
-
-function aSetGran(gran){
-  _aGran = gran;
-  document.getElementById('tg-m')?.classList.toggle('active', gran==='month');
-  document.getElementById('tg-w')?.classList.toggle('active', gran==='week');
-  aDrawTrend(_aTxs);
-}
-
-function aClearCat(){
-  const badge = document.getElementById('a-cat-badge');
-  if(badge) badge.style.display='none';
-  aDrawAll();
-}
-
-function aApplyCat(cat, type){
-  const badge = document.getElementById('a-cat-badge');
-  const lbl   = document.getElementById('a-cat-label');
-  if(badge) badge.style.display='flex';
-  if(lbl)   lbl.textContent = (type==='income'?'💙':'🔴')+' '+cat;
-  aDrawTrend(_aTxs.filter(t=>t.category===cat&&t.type===type));
-}
-
-function aDrawAll(){
-  aDrawSummary(_aTxs);
-  aDrawDonuts(_aTxs);
-  aDrawTrend(_aTxs);
-  aDrawAccBar();
-}
-
-function aDrawSummary(txs){
-  const inc=txs.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0);
-  const exp=txs.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);
-  const net=inc-exp;
-  const el=document.getElementById('a-summary'); if(!el) return;
-  el.innerHTML=`
-    <div style="background:var(--blue-soft);border-radius:var(--radius-sm);padding:14px 16px;">
-      <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:4px;letter-spacing:.4px;">INCOME</div>
-      <div style="font-size:22px;font-weight:800;font-family:var(--mono);color:var(--blue);letter-spacing:-1px;">${fmt(inc)}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:3px;">${txs.filter(t=>t.type==='income').length} tx</div>
-    </div>
-    <div style="background:var(--expense-soft);border-radius:var(--radius-sm);padding:14px 16px;">
-      <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:4px;letter-spacing:.4px;">EXPENSE</div>
-      <div style="font-size:22px;font-weight:800;font-family:var(--mono);color:var(--expense);letter-spacing:-1px;">${fmt(exp)}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:3px;">${txs.filter(t=>t.type==='expense').length} tx</div>
-    </div>
-    <div style="background:${net>=0?'var(--saving-soft)':'var(--expense-soft)'};border-radius:var(--radius-sm);padding:14px 16px;">
-      <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:4px;letter-spacing:.4px;">NET</div>
-      <div style="font-size:22px;font-weight:800;font-family:var(--mono);color:${net>=0?'var(--saving)':'var(--expense)'};letter-spacing:-1px;">${net>=0?'+':''}${fmt(net)}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:3px;">Save rate: ${inc>0?((net/inc)*100).toFixed(0):0}%</div>
-    </div>`;
-}
-
-function aDrawDonuts(txs){
-  const TT={backgroundColor:'rgba(17,24,39,.88)',titleFont:{family:'Geist',size:12,weight:'bold'},bodyFont:{family:'Geist Mono',size:11},padding:11,cornerRadius:8};
-  const CI=['#4a7cff','#7da0ff','#a0c0ff','#3bb8c4','#5a9e6f','#c0d8ff','#6c9fff'];
-  const CE=['#f05c6e','#f5899a','#fab4be','#f0a500','#7c5cbf','#3bb8c4','#5a9e6f','#e85d40'];
-  const ic={};
-  txs.filter(t=>t.type==='income').forEach(t=>{const k=t.category||'Others';ic[k]=(ic[k]||0)+Number(t.amount);});
-  const icK=Object.keys(ic),icV=Object.values(ic),icT=icV.reduce((a,b)=>a+b,0);
-  _makeChart('a-inc',{type:'doughnut',data:{labels:icK,datasets:[{data:icV,backgroundColor:CI,borderWidth:3,borderColor:'#fff',hoverOffset:12}]},
-    options:{cutout:'60%',responsive:true,maintainAspectRatio:false,
-      onClick:(e,els)=>{if(els.length) aApplyCat(icK[els[0].index],'income');},
-      plugins:{legend:{position:'bottom',labels:{font:{family:'Geist',size:11},boxWidth:10,padding:10,usePointStyle:true}},
-        tooltip:{...TT,callbacks:{label:ctx=>` ${ctx.label}: ${fmt(ctx.raw)} (${icT>0?((ctx.raw/icT)*100).toFixed(1):0}%)`}}},
-      animation:{duration:600,easing:'easeInOutQuart'}}});
-  const ec={};
-  txs.filter(t=>t.type==='expense').forEach(t=>{const k=t.category||'Others';ec[k]=(ec[k]||0)+Number(t.amount);});
-  const ecK=Object.keys(ec),ecV=Object.values(ec),ecT=ecV.reduce((a,b)=>a+b,0);
-  _makeChart('a-exp',{type:'doughnut',data:{labels:ecK,datasets:[{data:ecV,backgroundColor:CE,borderWidth:3,borderColor:'#fff',hoverOffset:12}]},
-    options:{cutout:'60%',responsive:true,maintainAspectRatio:false,
-      onClick:(e,els)=>{if(els.length) aApplyCat(ecK[els[0].index],'expense');},
-      plugins:{legend:{position:'bottom',labels:{font:{family:'Geist',size:11},boxWidth:10,padding:10,usePointStyle:true}},
-        tooltip:{...TT,callbacks:{label:ctx=>` ${ctx.label}: ${fmt(ctx.raw)} (${ecT>0?((ctx.raw/ecT)*100).toFixed(1):0}%)`}}},
-      animation:{duration:600,easing:'easeInOutQuart'}}});
-}
-
-function aDrawTrend(txs){
-  const TT={backgroundColor:'rgba(17,24,39,.88)',titleFont:{family:'Geist',size:12,weight:'bold'},bodyFont:{family:'Geist Mono',size:11},padding:11,cornerRadius:8};
-  const scalesOpts={x:{grid:{display:false},ticks:{font:{size:10},color:'var(--text3)',maxRotation:45}},y:{grid:{color:'rgba(228,232,240,.6)',lineWidth:.8},ticks:{font:{size:10},callback:v=>fmt(v)}}};
-  if(_aGran==='month'){
-    const byM={};
-    txs.forEach(t=>{if(!t.date)return;const k=t.date.substring(0,7);if(!byM[k])byM[k]={inc:0,exp:0};if(t.type==='income')byM[k].inc+=Number(t.amount);if(t.type==='expense')byM[k].exp+=Number(t.amount);});
-    const L=Object.keys(byM).sort();
-    if(!L.length){_destroyChart('a-trend');return;}
-    const lbl=document.getElementById('a-trend-label');if(lbl)lbl.textContent=L[0]+' — '+L[L.length-1];
-    _makeChart('a-trend',{type:'bar',data:{labels:L,datasets:[
-      {label:'Income', data:L.map(k=>byM[k].inc),backgroundColor:'rgba(74,124,255,.72)',borderRadius:5,borderSkipped:false,order:2},
-      {label:'Expense',data:L.map(k=>byM[k].exp),backgroundColor:'rgba(240,92,110,.65)',borderRadius:5,borderSkipped:false,order:2},
-      {label:'Net',    data:L.map(k=>byM[k].inc-byM[k].exp),type:'line',borderColor:'#3bb8c4',backgroundColor:'rgba(59,184,196,.07)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#fff',pointBorderColor:'#3bb8c4',pointBorderWidth:2,borderWidth:2,order:1},
-    ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{position:'bottom',labels:{font:{family:'Geist',size:12},boxWidth:10,padding:12,usePointStyle:true}},tooltip:{...TT,callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.raw)}`}}},
-      scales:scalesOpts,animation:{duration:500,easing:'easeOutQuart'}}});
-  } else {
-    const byW={};
-    txs.forEach(t=>{if(!t.date)return;const d=new Date(t.date),dow=d.getDay();const m=new Date(d);m.setDate(d.getDate()-(dow===0?6:dow-1));const k=m.toISOString().split('T')[0];if(!byW[k])byW[k]={inc:0,exp:0};if(t.type==='income')byW[k].inc+=Number(t.amount);if(t.type==='expense')byW[k].exp+=Number(t.amount);});
-    const L=Object.keys(byW).sort().slice(-24);
-    if(!L.length){_destroyChart('a-trend');return;}
-    const lbl=document.getElementById('a-trend-label');if(lbl)lbl.textContent='Week of '+L[0]+' — '+L[L.length-1];
-    _makeChart('a-trend',{type:'bar',data:{labels:L,datasets:[
-      {label:'Income', data:L.map(k=>byW[k]?.inc||0),backgroundColor:'rgba(74,124,255,.72)',borderRadius:4,borderSkipped:false},
-      {label:'Expense',data:L.map(k=>byW[k]?.exp||0),backgroundColor:'rgba(240,92,110,.65)',borderRadius:4,borderSkipped:false},
-    ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
-      plugins:{legend:{position:'bottom',labels:{font:{family:'Geist',size:12},boxWidth:10,padding:12,usePointStyle:true}},tooltip:{...TT,callbacks:{title:i=>'Week: '+i[0].label,label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.raw)}`}}},
-      scales:scalesOpts,animation:{duration:500,easing:'easeOutQuart'}}});
-  }
-}
-
-function aDrawAccBar(){
-  const TT={backgroundColor:'rgba(17,24,39,.88)',bodyFont:{family:'Geist Mono',size:11},padding:11,cornerRadius:8};
-  const C=['rgba(74,124,255,.82)','rgba(59,184,196,.78)','rgba(240,92,110,.72)','rgba(124,92,191,.72)','rgba(240,165,0,.72)','rgba(90,158,111,.72)'];
-  _makeChart('a-acc',{type:'bar',data:{labels:D.accounts.map(a=>a.name),datasets:[{label:'Balance',data:D.accounts.map(a=>Number(a.balance)),backgroundColor:D.accounts.map((_,i)=>C[i%C.length]),borderRadius:8,borderSkipped:false}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>`Balance: ${fmt(ctx.raw)}`}}},
-      scales:{x:{grid:{color:'rgba(228,232,240,.6)',lineWidth:.8},ticks:{font:{size:10},callback:v=>fmt(v)}},y:{grid:{display:false},ticks:{font:{size:12,weight:'600'}}}},
-      animation:{duration:500,easing:'easeOutQuart'}}});
-}
-
-/* ================================================================
-   TRANSACTIONS
-   ================================================================ */
 let txState = {
   page:1, pageSize:50, mode:'pagination',
   filterType:'all', filterAccount:'all', filterCat:'all', query:'',
-  periodMode:'month',   // 'month' | 'custom'
-  selectedMonth:'',     // 'YYYY-MM'
-  customStart:'', customEnd:''
+  periodMode:'month', selectedMonth:'', customStart:'', customEnd:''
 };
 let txFiltered = [];
+let txTrendChartInst = null;
 
 function renderTransactions(c){
-  // Build available months from transactions
   const monthSet = new Set(D.transactions.map(t=>t.date?t.date.substring(0,7):'').filter(Boolean));
-  const months = [...monthSet].sort().reverse(); // newest first
-
-  // Default selected month = latest
+  const months = [...monthSet].sort().reverse();
   if(!txState.selectedMonth && months.length) txState.selectedMonth = months[0];
-
   const allCats = [...new Set(D.transactions.map(t=>t.category).filter(Boolean))].sort();
 
-  c.innerHTML = `<div class="page">
-    <!-- Period selector row -->
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
-      <div style="display:flex;gap:4px;">
-        <button class="pbtn${txState.periodMode==='month'?' active':''}" onclick="setTxPeriodMode('month')" style="padding:6px 12px;font-size:12px;">By Month</button>
-        <button class="pbtn${txState.periodMode==='custom'?' active':''}" onclick="setTxPeriodMode('custom')" style="padding:6px 12px;font-size:12px;">Custom</button>
-      </div>
-      ${txState.periodMode==='month' ? `
-        <select class="sel" id="tx-month-sel" onchange="setTxMonth(this.value)" style="font-size:13px;">
-          ${months.map(m=>`<option value="${m}" ${txState.selectedMonth===m?'selected':''}>${m}</option>`).join('')}
-        </select>
-        <span style="font-size:12px;color:var(--text3);">or</span>
-        <button class="pbtn" onclick="setTxMonth('all')" style="padding:6px 12px;font-size:12px;${txState.selectedMonth==='all'?'background:var(--blue);color:#fff;border-color:var(--blue)':''}">All</button>
-      ` : `
-        <input type="date" id="tx-cs" class="sel" value="${txState.customStart}" style="font-size:12px;" onchange="txState.customStart=this.value;txState.page=1;applyTxFilter()"/>
-        <span style="color:var(--text3)">—</span>
-        <input type="date" id="tx-ce" class="sel" value="${txState.customEnd}" style="font-size:12px;" onchange="txState.customEnd=this.value;txState.page=1;applyTxFilter()"/>
-      `}
-    </div>
+  // Build HTML safely
+  const monthOptions = months.map(m=>{
+    const sel = txState.selectedMonth===m ? ' selected' : '';
+    return `<option value="${m}"${sel}>${m}</option>`;
+  }).join('');
 
-    <!-- Filter bar -->
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+  const accOptions = D.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  const catOptions = allCats.map(c=>`<option value="${c}">${c}</option>`).join('');
+
+  const mActive = txState.periodMode==='month' ? ' active' : '';
+  const cActive = txState.periodMode==='custom' ? ' active' : '';
+  const pActive = txState.mode==='pagination' ? ' active' : '';
+  const sActive = txState.mode==='infinite' ? ' active' : '';
+
+  const customDateRow = txState.periodMode==='custom'
+    ? `<input type="date" id="tx-cs" class="sel" value="${txState.customStart}" style="font-size:13px;"/>
+       <span style="color:var(--text3)">—</span>
+       <input type="date" id="tx-ce" class="sel" value="${txState.customEnd}" style="font-size:13px;"/>`
+    : `<select class="sel" id="tx-month-sel" style="font-size:13px;">${monthOptions}</select>
+       <button class="pbtn${txState.selectedMonth==='all'?' active':''}" id="tx-all-btn" style="padding:7px 14px;font-size:13px;">All</button>`;
+
+  c.innerHTML = `<div class="page">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="pbtn${mActive}" id="tx-btn-month" style="padding:7px 14px;font-size:13px;">By Month</button>
+      <button class="pbtn${cActive}" id="tx-btn-custom" style="padding:7px 14px;font-size:13px;">Custom</button>
+      ${customDateRow}
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
       <div style="flex:1;min-width:160px;">
-        <div class="search-wrap" style="background:var(--surface);">
-          <span>🔍</span>
-          <input type="text" placeholder="Search..." oninput="txState.query=this.value;txState.page=1;applyTxFilter()" style="border:none;background:none;outline:none;font-size:13px;width:100%;"/>
+        <div class="search-wrap">
+          <span style="color:var(--text3);">🔍</span>
+          <input type="text" id="tx-search" placeholder="Search..." style="border:none;background:none;outline:none;font-size:13px;width:100%;"/>
         </div>
       </div>
-      <select class="sel" onchange="txState.filterType=this.value;txState.page=1;applyTxFilter()">
+      <select class="sel" id="tx-filter-type">
         <option value="all">All Types</option>
-        <option value="income">${T('income')}</option>
-        <option value="expense">${T('expense')}</option>
-        <option value="transfer">${T('transfer')}</option>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+        <option value="transfer">Transfer</option>
       </select>
-      <select class="sel" onchange="txState.filterAccount=this.value;txState.page=1;applyTxFilter()">
-        <option value="all">All Accounts</option>
-        ${D.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('')}
+      <select class="sel" id="tx-filter-acc">
+        <option value="all">All Accounts</option>${accOptions}
       </select>
-      <select class="sel" onchange="txState.filterCat=this.value;txState.page=1;applyTxFilter()">
-        <option value="all">All Categories</option>
-        ${allCats.map(c=>`<option value="${c}">${c}</option>`).join('')}
+      <select class="sel" id="tx-filter-cat">
+        <option value="all">All Categories</option>${catOptions}
       </select>
-      <div style="display:flex;gap:4px;">
-        <button class="pbtn${txState.mode==='pagination'?' active':''}" id="tx-mode-page" onclick="txState.mode='pagination';txState.page=1;applyTxFilter()" style="padding:6px 10px;font-size:11px;">Pages</button>
-        <button class="pbtn${txState.mode==='infinite'?' active':''}" id="tx-mode-inf" onclick="txState.mode='infinite';txState.page=1;applyTxFilter()" style="padding:6px 10px;font-size:11px;">Scroll</button>
-      </div>
-      <button class="btn btn-blue" onclick="openTxModal()">+ Add</button>
+      <button class="pbtn${pActive}" id="tx-mode-page" style="padding:6px 10px;font-size:12px;">Pages</button>
+      <button class="pbtn${sActive}" id="tx-mode-scroll" style="padding:6px 10px;font-size:12px;">Scroll</button>
     </div>
-
-    <!-- Trend chart -->
-    <div class="card card-p" style="margin-bottom:14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div class="sec-title">Trend <span id="tx-trend-label" style="font-size:11px;color:var(--text3);font-weight:400"></span></div>
-        <div id="tx-trend-summary" style="font-size:12px;color:var(--text2);font-family:var(--mono)"></div>
-      </div>
-      <div class="chart-box" style="height:140px;"><canvas id="tx-trend-chart"></canvas></div>
+    <div style="background:#fff;border-radius:14px;border:1px solid #e5e7eb;padding:16px 20px;margin-bottom:14px;display:flex;gap:24px;align-items:center;" id="tx-summary-strip">
+      <span id="tx-count-label" style="font-size:13px;color:var(--text3);flex:1;"></span>
     </div>
-
-    <!-- Table -->
-    <div class="card" style="overflow:hidden;">
-      <div style="padding:10px 16px;font-size:12px;color:var(--text3);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-        <span id="tx-count-label"></span>
-        <div style="display:flex;gap:6px;" id="tx-page-top"></div>
-      </div>
+    <div style="background:#fff;border-radius:14px;border:1px solid #e5e7eb;padding:20px 24px;margin-bottom:14px;">
+      <div style="font-size:14px;font-weight:600;margin-bottom:12px;">Trend <span id="tx-trend-label" style="font-size:11px;color:var(--text3);font-weight:400;"></span></div>
+      <div style="height:130px;"><canvas id="tx-trend-chart"></canvas></div>
+    </div>
+    <div style="background:#fff;border-radius:14px;border:1px solid #e5e7eb;overflow:hidden;">
       <div style="overflow-x:auto;">
         <table class="tbl">
-          <thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Account</th><th>Note</th><th>Amount</th><th>Rec</th><th style="width:72px;"></th></tr></thead>
+          <thead><tr>
+            <th>Date</th><th>Category</th><th>Account</th><th>Note</th>
+            <th style="text-align:right;">Amount</th><th></th>
+          </tr></thead>
           <tbody id="tx-tbody"></tbody>
         </table>
       </div>
-      <div id="tx-page-bottom" style="padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:8px;border-top:1px solid var(--border);"></div>
+      <div id="tx-page-bottom" style="padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:8px;border-top:1px solid var(--border);min-height:48px;"></div>
     </div>
   </div>`;
+
+  // Wire up all events
+  const el = (id) => document.getElementById(id);
+  if(el('tx-btn-month'))  el('tx-btn-month').onclick  = () => setTxPeriodMode('month');
+  if(el('tx-btn-custom')) el('tx-btn-custom').onclick = () => setTxPeriodMode('custom');
+  if(el('tx-all-btn'))    el('tx-all-btn').onclick    = () => setTxMonth('all');
+  if(el('tx-month-sel'))  el('tx-month-sel').onchange = (e) => setTxMonth(e.target.value);
+  if(el('tx-cs'))         el('tx-cs').onchange        = (e) => { txState.customStart=e.target.value; txState.page=1; applyTxFilter(); };
+  if(el('tx-ce'))         el('tx-ce').onchange        = (e) => { txState.customEnd=e.target.value;   txState.page=1; applyTxFilter(); };
+  if(el('tx-search'))     el('tx-search').oninput     = (e) => { txState.query=e.target.value; txState.page=1; applyTxFilter(); };
+  if(el('tx-filter-type'))el('tx-filter-type').onchange=(e)=>{ txState.filterType=e.target.value; txState.page=1; applyTxFilter(); };
+  if(el('tx-filter-acc')) el('tx-filter-acc').onchange =(e)=>{ txState.filterAccount=e.target.value; txState.page=1; applyTxFilter(); };
+  if(el('tx-filter-cat')) el('tx-filter-cat').onchange =(e)=>{ txState.filterCat=e.target.value; txState.page=1; applyTxFilter(); };
+  if(el('tx-mode-page'))  el('tx-mode-page').onclick  = () => { txState.mode='pagination'; txState.page=1; applyTxFilter(); };
+  if(el('tx-mode-scroll'))el('tx-mode-scroll').onclick = () => { txState.mode='infinite';  txState.page=1; applyTxFilter(); };
+
+  // Restore filter state to selects
+  if(el('tx-filter-type')) el('tx-filter-type').value = txState.filterType;
+  if(el('tx-filter-acc'))  el('tx-filter-acc').value  = txState.filterAccount;
+  if(el('tx-filter-cat'))  el('tx-filter-cat').value  = txState.filterCat;
 
   applyTxFilter();
 }
@@ -1921,7 +2425,12 @@ function applyTxFilter(){
     // Search
     if(query){
       const q=query.toLowerCase();
-      if(!(t.note||'').toLowerCase().includes(q)&&!(t.category||'').toLowerCase().includes(q)) return false;
+      const accName=(getAccName(t.account)||'').toLowerCase();
+      const matchNote=(t.note||'').toLowerCase().includes(q);
+      const matchCat=(t.category||'').toLowerCase().includes(q);
+      const matchAcc=accName.includes(q);
+      const matchAmt=String(t.amount||'').includes(q);
+      if(!matchNote&&!matchCat&&!matchAcc&&!matchAmt) return false;
     }
     return true;
   });
@@ -1938,7 +2447,6 @@ function applyTxFilter(){
   renderTxTable();
 }
 
-let txTrendChart = null;
 function drawTxTrend(txs){
   const ctx=document.getElementById('tx-trend-chart'); if(!ctx) return;
   if(txTrendChart){txTrendChart.destroy();txTrendChart=null;}
@@ -2004,7 +2512,7 @@ function buildTxTableRows(txs){
     <td style="font-size:12px;">${t.category||'-'}</td>
     <td style="font-size:12px">${t.type==='transfer'?`${getAccName(t.from_account)}→${getAccName(t.to_account)}`:getAccName(t.account)}</td>
     <td style="font-size:12px;color:var(--text2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.note||'-'}</td>
-    <td style="font-family:var(--mono);font-weight:700;color:${t.type==='income'?'var(--blue)':t.type==='expense'?'var(--expense)':'var(--transfer)'}">${t.type==='income'?'+':'-'}${fmt(Number(t.amount))}</td>
+    <td style="font-weight:700;color:${t.type==='income'?'var(--blue)':t.type==='expense'?'var(--expense)':'var(--transfer)'}">${t.type==='income'?'+':'-'}${fmt(Number(t.amount))}</td>
     <td>${t.recurring?`<span class="tx-rec-badge">${t.recurring.type==='installment'?`📦${t.recurring.currentInstall||1}/${t.recurring.totalInstall}`:'🔁'}</span>`:'-'}</td>
     <td><div style="display:flex;gap:4px;">
       <button class="btn-icon btn-sm" onclick="openEditTx(${t.id})" title="Edit">✏️</button>
@@ -2058,10 +2566,10 @@ function renderInvestment(c){
       <div class="card-p" style="padding-bottom:0;"><div class="sec-hdr"><div class="sec-title">${T('holdings')}</div><button class="btn btn-blue btn-sm" onclick="openInvModal()">+ Add</button></div></div>
       <div style="overflow-x:auto;"><table class="tbl"><thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Lot</th><th>Buy</th><th>Current</th><th>Value</th><th>Gain/Loss</th><th></th></tr></thead>
       <tbody>${D.investments.map(i=>{const g=(Number(i.current_price)-Number(i.buy_price))*Number(i.lot);const gp2=(((Number(i.current_price)-Number(i.buy_price))/Number(i.buy_price))*100).toFixed(1);return`<tr>
-        <td style="font-family:var(--mono);font-weight:700;color:var(--blue)">${i.code}</td><td style="font-weight:600">${i.name}</td>
+        <td style="font-weight:700;color:var(--blue)">${i.code}</td><td style="font-weight:600">${i.name}</td>
         <td><span class="badge badge-inv">${i.type}</span></td><td>${i.lot}</td>
-        <td style="font-family:var(--mono)">${fmt(Number(i.buy_price))}</td><td style="font-family:var(--mono)">${fmt(Number(i.current_price))}</td>
-        <td style="font-family:var(--mono);font-weight:700">${fmt(Number(i.current_price)*Number(i.lot))}</td>
+        <td style="">${fmt(Number(i.buy_price))}</td><td style="">${fmt(Number(i.current_price))}</td>
+        <td style="font-weight:700">${fmt(Number(i.current_price)*Number(i.lot))}</td>
         <td class="${g>=0?'gain-p':'gain-n'}">${g>=0?'+':''}${fmt(g)} (${gp2}%)</td>
         <td><button class="btn-icon" onclick="deleteInv(${i.id})" style="color:var(--expense)">🗑</button></td>
       </tr>`;}).join('')}</tbody></table></div>
@@ -2101,7 +2609,7 @@ function renderBudget(c){
   c.innerHTML=`<div class="page">
     <div class="sec-hdr" style="margin-bottom:20px;"><div class="sec-title">Budget — ${new Date().toLocaleString('en-US',{month:'long',year:'numeric'})}</div><button class="btn btn-blue" onclick="openBudgetModal()">${T('edit_budget')||'Edit Budget'}</button></div>
     <div class="card card-p" style="margin-bottom:16px;">
-      ${Object.entries(D.budgets).length?Object.entries(D.budgets).map(([cat,bdg])=>{const sp=spent[cat]||0;const pct=Math.min(100,Math.round((sp/bdg)*100));const color=pct>=90?'var(--expense)':pct>=70?'var(--transfer)':'var(--blue)';return`<div style="margin-bottom:18px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><div style="font-size:13.5px;font-weight:700;">${cat}</div><div style="display:flex;gap:10px;align-items:center;">${pct>=90?'<span style="font-size:11px;font-weight:700;color:var(--expense)">⚠️ Almost over!</span>':''}<span style="font-family:var(--mono);font-size:12px;color:var(--text2)">${fmt(sp)} / ${fmt(bdg)}</span></div></div><div class="prog-wrap"><div class="prog-fill" style="width:${pct}%;background:${color}"></div></div><div style="font-size:11px;color:var(--text3);margin-top:3px;">${pct}% used · ${fmt(bdg-sp)} remaining</div></div>`;}).join(''):'<div style="text-align:center;padding:24px;color:var(--text3)">No budget set. Click Edit Budget.</div>'}
+      ${Object.entries(D.budgets).length?Object.entries(D.budgets).map(([cat,bdg])=>{const sp=spent[cat]||0;const pct=Math.min(100,Math.round((sp/bdg)*100));const color=pct>=90?'var(--expense)':pct>=70?'var(--transfer)':'var(--blue)';return`<div style="margin-bottom:18px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><div style="font-size:13.5px;font-weight:700;">${cat}</div><div style="display:flex;gap:10px;align-items:center;">${pct>=90?'<span style="font-size:11px;font-weight:700;color:var(--expense)">⚠️ Almost over!</span>':''}<span style="font-size:12px;color:var(--text2)">${fmt(sp)} / ${fmt(bdg)}</span></div></div><div class="prog-wrap"><div class="prog-fill" style="width:${pct}%;background:${color}"></div></div><div style="font-size:11px;color:var(--text3);margin-top:3px;">${pct}% used · ${fmt(bdg-sp)} remaining</div></div>`;}).join(''):'<div style="text-align:center;padding:24px;color:var(--text3)">No budget set. Click Edit Budget.</div>'}
     </div>
     <div class="card card-p"><div class="sec-title" style="margin-bottom:14px;">${T('budget_vs_actual')}</div><div class="chart-box chart-box-h240"><canvas id="budget-chart"></canvas></div></div>
   </div>`;
@@ -2144,15 +2652,70 @@ async function saveBudgets(){
    NOTES
    ================================================================ */
 function renderNotes(c){
-  c.innerHTML=`<div class="page">
-    <div class="sec-hdr" style="margin-bottom:20px;"><div class="sec-title">${T('evaluation_notes')}</div><button class="btn btn-blue" onclick="openNoteModal()">+ Add Note</button></div>
-    ${D.notes.map(n=>`<div class="note-card">
-      <div class="note-top"><div style="font-size:14px;font-weight:700">${n.title}</div><div style="display:flex;gap:8px;align-items:center;"><span style="font-size:11px;color:var(--text3)">${n.date}</span><button class="btn-icon" onclick="deleteNote(${n.id})" style="color:var(--expense)">🗑</button></div></div>
-      <div style="font-size:11px;color:var(--text2);background:var(--surface2);padding:2px 8px;border-radius:99px;display:inline-block;margin-bottom:8px;">📁 ${n.cat}</div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.65">${n.body}</div>
-    </div>`).join('')}
-    ${!D.notes.length?'<div class="card card-p" style="text-align:center;color:var(--text3);padding:40px;">No notes yet. Start your financial journal!</div>':''}
+  const notes = D.notes || [];
+
+  c.innerHTML = `<div class="page" style="max-width:780px;margin:0 auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <div>
+        <div style="font-size:22px;font-weight:700;color:#0f172a;">My Notes</div>
+        <div style="font-size:13px;color:#94a3b8;margin-top:2px;">${notes.length} notes · Notion-style workspace</div>
+      </div>
+      <button onclick="openNoteModal()" style="background:#0d9488;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Page
+      </button>
+    </div>
+
+    ${notes.length===0 ? `
+    <div style="text-align:center;padding:80px 20px;color:#94a3b8;">
+      <div style="font-size:48px;margin-bottom:16px;">📝</div>
+      <div style="font-size:18px;font-weight:600;color:#475569;margin-bottom:8px;">No notes yet</div>
+      <div style="font-size:14px;margin-bottom:24px;">Create your first note to start your personal workspace</div>
+      <button onclick="openNoteModal()" style="background:#0d9488;color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:500;cursor:pointer;">+ New Page</button>
+    </div>
+    ` : `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;">
+      ${notes.map(n=>{
+        const catColors={'evaluation':'#f59e0b','planning':'#3b82f6','reflection':'#8b5cf6','gratitude':'#0d9488','general':'#64748b'};
+        const color = catColors[n.cat]||'#64748b';
+        const preview = (n.body||'').replace(/[#*\[\]]/g,'').substring(0,120);
+        const date = n.date ? new Date(n.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+        return `<div onclick="openNoteView('${n.id}')" style="background:#fff;border-radius:14px;border:1px solid #e5e7eb;padding:20px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;" onmouseover="this.style.borderColor='#0d9488';this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(13,148,136,.12)'" onmouseout="this.style.borderColor='#e5e7eb';this.style.transform='';this.style.boxShadow=''">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${color};border-radius:14px 14px 0 0;"></div>
+          <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-size:15px;font-weight:600;color:#0f172a;line-height:1.3;flex:1;">${n.title||'Untitled'}</div>
+            <button onclick="event.stopPropagation();deleteNote(${n.id})" style="background:none;border:none;color:#cbd5e1;cursor:pointer;padding:2px;font-size:14px;flex-shrink:0;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#cbd5e1'">✕</button>
+          </div>
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+            <span style="background:${color}18;color:${color};padding:2px 8px;border-radius:99px;font-weight:500;">${n.cat||'general'}</span>
+            <span>${date}</span>
+          </div>
+          <div style="font-size:13px;color:#64748b;line-height:1.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${preview||'Empty page...'}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    `}
   </div>`;
+}
+
+function openNoteView(id){
+  const n = (D.notes||[]).find(x=>x.id==id);
+  if(!n) return;
+  // Fill modal with note content for editing
+  document.getElementById('note-title').value = n.title||'';
+  document.getElementById('note-cat').value   = n.cat||'general';
+  document.getElementById('note-date').value  = n.date||'';
+  document.getElementById('note-body').value  = n.body||'';
+  document.getElementById('note-id-edit').value = n.id;
+  openM('m-note');
+}
+
+async function deleteNote(id){
+  if(!confirm('Delete this note?')) return;
+  await sb.from('notes').delete().eq('id',id);
+  D.notes = (D.notes||[]).filter(n=>n.id!=id);
+  showToast('🗑 Note deleted');
+  navTo('notes',document.querySelector('.nav-item[data-page="notes"]'));
 }
 
 function openNoteModal(){ document.getElementById('note-date').value=new Date().toISOString().split('T')[0]; openM('m-note'); }
@@ -2164,23 +2727,23 @@ function openAddWin(){
   openM('m-win');
 }
 
-function saveWin(){
+async function saveWin(){
+  const text = document.getElementById('win-text').value.trim();
+  if(!text){ showToast('❌ Please write what happened!'); return; }
   const win={
     id:Date.now(),
     emoji:document.getElementById('win-emoji').value||'⭐',
-    text:document.getElementById('win-text').value||'A little win!',
+    text,
     date:document.getElementById('win-date').value
   };
   if(!D.lifeWins) D.lifeWins=[];
   D.lifeWins.unshift(win);
-  // Save to localStorage (personal motivation, not DB)
-  const saved=JSON.parse(localStorage.getItem('reece_user')||'{}');
-  saved.lifeWins=D.lifeWins;
-  localStorage.setItem('reece_user', JSON.stringify(saved));
+  await saveSettings(); // sync to Supabase
   closeM('m-win');
   fireConfetti();
   if(currentPage==='home') navTo('home',document.querySelector('.nav-item[data-page="home"]'));
-  showToast('🎉 Win saved! You earned this!');
+  if(currentPage==='journey') navTo('journey',document.querySelector('.nav-item[data-page="journey"]'));
+  showToast('🎉 Win saved!');
 }
 
 function openGoalSettings(){
@@ -2189,17 +2752,62 @@ function openGoalSettings(){
   openM('m-goal');
 }
 
-function saveGoal(){
+async function saveGoal(){
   D.goal=parseFloat(document.getElementById('goal-amount').value)||100000000;
   D.emergencyMonths=parseInt(document.getElementById('goal-emerg').value)||6;
-  // Save to localStorage
-  const saved=JSON.parse(localStorage.getItem('reece_user')||'{}');
-  saved.goal=D.goal; saved.emergencyMonths=D.emergencyMonths;
-  localStorage.setItem('reece_user', JSON.stringify(saved));
+  await saveSettings();
   closeM('m-goal');
   showToast('🎯 Goal updated!');
   if(currentPage==='home') navTo('home',document.querySelector('.nav-item[data-page="home"]'));
+  if(currentPage==='journey') navTo('journey',document.querySelector('.nav-item[data-page="journey"]'));
 }
+function openEditAcc(id){
+  const a = D.accounts.find(x=>x.id===id);
+  if(!a) return;
+  document.getElementById('edit-acc-id').value    = id;
+  document.getElementById('edit-acc-name').value   = a.name||'';
+  document.getElementById('edit-acc-icon').value   = a.icon||'';
+  document.getElementById('edit-acc-type').value   = a.group_type||'Saving';
+  document.getElementById('edit-acc-balance').value= a.balance||0;
+  openM('m-edit-acc');
+}
+
+async function saveEditAcc(){
+  const id      = document.getElementById('edit-acc-id').value;
+  const name    = document.getElementById('edit-acc-name').value.trim();
+  const icon    = document.getElementById('edit-acc-icon').value.trim()||'💰';
+  const group   = document.getElementById('edit-acc-type').value;
+  const balance = parseFloat(document.getElementById('edit-acc-balance').value)||0;
+  if(!name){ showToast('❌ Account name required'); return; }
+
+  showLoading('Saving...');
+  const { error } = await sb.from('accounts').update({ name, icon, group_type:group, balance }).eq('id', id);
+  hideLoading();
+  if(error){ showToast('❌ Error: '+error.message); return; }
+
+  // Update local state
+  const idx = D.accounts.findIndex(x=>x.id===id);
+  if(idx>-1) D.accounts[idx] = {...D.accounts[idx], name, icon, group_type:group, balance};
+  closeM('m-edit-acc');
+  showToast('✅ Account updated!');
+  navTo('wallets', document.querySelector('.nav-item[data-page="wallets"]'));
+}
+
+async function deleteAcc(id){
+  const a = D.accounts.find(x=>x.id===id);
+  if(!a) return;
+  if(!confirm('Delete account "'+a.name+'"? This cannot be undone.')) return;
+
+  showLoading('Deleting...');
+  const { error } = await sb.from('accounts').delete().eq('id', id);
+  hideLoading();
+  if(error){ showToast('❌ Error: '+error.message); return; }
+
+  D.accounts = D.accounts.filter(x=>x.id!==id);
+  showToast('🗑 Account deleted');
+  navTo('wallets', document.querySelector('.nav-item[data-page="wallets"]'));
+}
+
 function openNoteModal(){ document.getElementById('note-date').value=new Date().toISOString().split('T')[0]; openM('m-note'); }
 async function saveNote(){
   const note={id:Date.now(),user_id:USER.id,title:document.getElementById('note-title').value||'Note',date:document.getElementById('note-date').value,cat:document.getElementById('note-cat').value||'General',body:document.getElementById('note-body').value};
@@ -2245,18 +2853,7 @@ function showStab(tab,el){
     </div>
     <div class="card card-p" style="margin-bottom:16px;">
       <div class="sec-title" style="margin-bottom:14px;">${T('font_settings')}</div>
-      <div style="margin-bottom:14px;">
-        <label style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:6px;">${T('font_family')}</label>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-          ${fonts.map(f=>`<button onclick="applyFont('${f.v}')" style="padding:10px 12px;border-radius:var(--radius-sm);border:1.5px solid ${currentFont===f.v?'var(--blue)':'var(--border)'};background:${currentFont===f.v?'var(--blue-soft)':'var(--surface)'};color:${currentFont===f.v?'var(--blue)':'var(--text2)'};font-family:'${f.v}',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;text-align:left;">${f.l}</button>`).join('')}
-        </div>
-      </div>
-      <div>
-        <label style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:6px;">${T('font_size')}</label>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
-          ${sizes.map(s=>`<button onclick="applyFontSize('${s.v}')" style="padding:9px 8px;border-radius:var(--radius-sm);border:1.5px solid ${currentSize===s.v?'var(--blue)':'var(--border)'};background:${currentSize===s.v?'var(--blue-soft)':'var(--surface)'};color:${currentSize===s.v?'var(--blue)':'var(--text2)'};font-size:${s.v}px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;">${s.l}</button>`).join('')}
-        </div>
-      </div>
+      
     </div>
     <div class="card card-p">
       <div class="sec-title" style="margin-bottom:14px;">${T('language')} & ${T('currency')}</div>
@@ -2283,22 +2880,8 @@ async function applyTheme(accent,bg){
   document.documentElement.style.setProperty('--bg',bg);
   D.theme=accent; await saveSettings(); showToast('🎨 Theme applied!');
 }
-async function applyFont(fontName){
-  D.font=fontName;
-  document.documentElement.style.setProperty('--font',`'${fontName}', sans-serif`);
-  document.body.style.fontFamily=`'${fontName}', sans-serif`;
-  await saveSettings(); showToast('🔤 Font changed!');
-  showStab('appearance',document.querySelector('.itab.active'));
-}
-async function applyFontSize(size){
-  D.fontSize=size;
-  document.documentElement.style.fontSize=size+'px';
-  // Scale overview numbers proportionally
-  const overviewSize = Math.round(parseInt(size) * 2) + 'px';
-  document.documentElement.style.setProperty('--overview-font-size', overviewSize);
-  await saveSettings(); showToast('📏 Font size: '+size+'px');
-  showStab('appearance',document.querySelector('.itab.active'));
-}
+async function applyFont(fontName){ /* font picker removed */ }
+async function applyFontSize(size){ /* font size picker removed */ }
 async function setCurrency(v){ D.currency=v;document.getElementById('sel-currency').value=v;await saveSettings();navTo(currentPage,document.querySelector(`.nav-item[data-page="${currentPage}"]`)); }
 async function setLang(v){
   D.lang=v;
@@ -2313,20 +2896,36 @@ async function setLang(v){
 }
 async function saveSettings(){
   try {
-    // Try saving with font settings (requires column migration)
-    const { error } = await sb.from('settings').upsert({
-      user_id:USER.id, currency:D.currency, lang:D.lang,
-      theme:D.theme, categories:JSON.stringify(D.categories),
-      font:D.font||'Geist', font_size:D.fontSize||'14'
-    },{onConflict:'user_id'});
-    if(error) {
-      // Fallback: save without font columns (before migration)
-      await sb.from('settings').upsert({
+    const payload = {
+      user_id:USER.id,
+      currency:D.currency,
+      lang:D.lang,
+      theme:D.theme,
+      categories:JSON.stringify(D.categories),
+      font:D.font||'Inter',
+      font_size:D.fontSize||'14',
+      goal: D.goal||100000000,
+      emergency_months: D.emergencyMonths||6,
+      life_wins: JSON.stringify(D.lifeWins||[]),
+      wishlist: JSON.stringify(D.wishlist||[])
+    };
+    const { error } = await sb.from('settings').upsert(payload,{onConflict:'user_id'});
+    if(error){
+      // Fallback without new columns
+      const { error:e2 } = await sb.from('settings').upsert({
         user_id:USER.id, currency:D.currency, lang:D.lang,
         theme:D.theme, categories:JSON.stringify(D.categories)
       },{onConflict:'user_id'});
+      if(e2) console.warn('saveSettings fallback error:', e2);
     }
-  } catch(e) { console.warn('saveSettings error:', e); }
+  } catch(e){ console.warn('saveSettings error:', e); }
+  // Always save to localStorage as backup
+  try {
+    const saved = JSON.parse(localStorage.getItem('reece_user')||'{}');
+    saved.goal = D.goal; saved.emergencyMonths = D.emergencyMonths;
+    saved.lifeWins = D.lifeWins; saved.wishlist = D.wishlist;
+    localStorage.setItem('reece_user', JSON.stringify(saved));
+  } catch(e){}
 }
 
 /* ================================================================
@@ -2379,22 +2978,41 @@ function setRecType(type){
 }
 
 async function saveTx(){
-  const amount=parseFloat(document.getElementById('tx-amount').value)||0;
-  if(!amount){showToast('⚠️ Please enter an amount!');return;}
+  // === VALIDATION ===
+  const amountRaw = document.getElementById('tx-amount').value.trim();
+  const amount = parseFloat(amountRaw)||0;
+  const date = document.getElementById('tx-date').value;
+  const errors = [];
+
+  if(!amount || amount <= 0)   errors.push('Amount must be greater than 0');
+  if(isNaN(amount))            errors.push('Amount must be a valid number');
+  if(!date)                    errors.push('Date is required');
+  if(amount > 999999999)       errors.push('Amount seems too large — please check');
+
+  if(txType==='transfer'){
+    const from = document.getElementById('tx-from')?.value;
+    const to   = document.getElementById('tx-to')?.value;
+    if(!from || !to)           errors.push('Please select both accounts for transfer');
+    if(from === to)            errors.push('From and To accounts cannot be the same');
+  } else {
+    const acc = document.getElementById('tx-account')?.value;
+    if(!acc)                   errors.push('Please select an account');
+  }
+
+  if(errors.length > 0){
+    showToast('⚠️ ' + errors[0]);
+    return;
+  }
   const tx={id:Date.now(),user_id:USER.id,type:txType,amount,date:document.getElementById('tx-date').value,note:document.getElementById('tx-note').value,recurring:null};
   if(txType==='transfer'){
     tx.from_account=document.getElementById('tx-from').value;
+  if(txType==='transfer'){
+    tx.from_account=document.getElementById('tx-from').value;
     tx.to_account=document.getElementById('tx-to').value;
-    // Update balances
-    const fa=D.accounts.find(a=>a.id===tx.from_account);
-    const ta=D.accounts.find(a=>a.id===tx.to_account);
-    if(fa){fa.balance=Number(fa.balance)-amount;await sb.from('accounts').update({balance:fa.balance}).eq('id',fa.id);}
-    if(ta){ta.balance=Number(ta.balance)+amount;await sb.from('accounts').update({balance:ta.balance}).eq('id',ta.id);}
   } else {
-    tx.account=document.getElementById('tx-from').value;
+    tx.account=document.getElementById('tx-account').value;
     tx.category=document.getElementById('tx-cat').value;
-    const acc=D.accounts.find(a=>a.id===tx.account);
-    if(acc){acc.balance=Number(acc.balance)+(txType==='income'?amount:-amount);await sb.from('accounts').update({balance:acc.balance}).eq('id',acc.id);}
+  }
     if(txType==='expense'&&recEnabled&&recType){
       tx.recurring={type:recType,day:parseInt(document.getElementById('rec-day').value)||1};
       if(recType==='installment'){tx.recurring.totalInstall=parseInt(document.getElementById('rec-install-count').value)||1;tx.recurring.currentInstall=1;}
@@ -2405,17 +3023,26 @@ async function saveTx(){
   D.transactions.unshift(tx);
   document.getElementById('nav-tx-badge').textContent=D.transactions.length;
   recEnabled=false; recType=null;
+  // Auto-update account balance via balance engine
+  await updateAccountBalance(tx.account, tx.type, tx.amount, tx.from_account, tx.to_account, null, null);
   closeM('m-tx'); showToast('✅ Transaction saved!');
   if(txType==='income') fireConfetti();
   navTo(currentPage,document.querySelector(`.nav-item[data-page="${currentPage}"]`));
 }
 
 async function deleteTx(id){
+  const tx = D.transactions.find(t=>t.id===id);
+  if(!tx){ showToast("❌ Transaction not found"); return; }
+  if(!confirm("Delete this transaction?")) return;
+  showLoading('Deleting...');
   await dbDelete('transactions',id);
+  // Reverse balance effect
+  await updateAccountBalance(tx.account, tx.type, tx.amount, tx.from_account, tx.to_account, null, null, true);
   D.transactions=D.transactions.filter(t=>t.id!==id);
   document.getElementById('nav-tx-badge').textContent=D.transactions.length;
-  showToast('🗑 Deleted');
-  navTo(currentPage,document.querySelector(`.nav-item[data-page="${currentPage}"]`));
+  hideLoading();
+  showToast('🗑 Transaction deleted');
+  navTo(currentPage,document.querySelector(`[data-page="${currentPage}"]`));
 }
 
 function openEditTx(id){
@@ -2450,7 +3077,10 @@ async function saveEditTx(){
    ================================================================ */
 async function saveNewAcc(){
   const name=document.getElementById('new-acc-name').value.trim();
-  if(!name){showToast('⚠️ Enter account name');return;}
+  if(!name){showToast('⚠️ Account name is required');return;}
+  if(D.accounts.find(a=>a.name.toLowerCase()===name.toLowerCase())){
+    showToast('⚠️ Account "'+name+'" already exists');return;
+  }
   const group=document.getElementById('new-acc-group').value;
   const acc={id:'acc_'+Date.now(),user_id:USER.id,name,group_type:group,balance:parseFloat(document.getElementById('new-acc-bal').value)||0,icon:document.getElementById('new-acc-icon').value||'💰'};
   await dbSave('accounts',acc,'id');
@@ -2558,7 +3188,8 @@ async function importExcel(input){
       if(!isFormatB && wsA){
         rows=XLSX.utils.sheet_to_json(wsA,{header:1}).slice(1).filter(r=>r[2]);
       }
-      if(!rows.length){ hideLoading(); showToast('❌ No data found. Check sheet name.'); return; }
+      if(!rows.length){ hideLoading(); showToast('❌ No data found. Make sure the file has Sheet1 or Transactions sheet.'); return; }
+      if(rows.length > 10000){ hideLoading(); showToast('⚠️ File too large. Max 10,000 rows per import.'); return; }
 
       // ── Auto-create missing accounts ───────────────────────
       const accNamesInFile=new Set();
@@ -2629,7 +3260,7 @@ async function importExcel(input){
           }
 
           const tx={
-            id: Date.now()+idx+Math.floor(Math.random()*1000),
+            id: Date.now()*1000+idx+Math.floor(Math.random()*9999),
             user_id:USER.id, type, amount, date:dateStr,
             note:String(note).trim(),
             category:String(cat).trim(),
@@ -2661,6 +3292,10 @@ async function importExcel(input){
       }
       D.transactions=[...newTxs,...D.transactions];
       document.getElementById('nav-tx-badge').textContent=D.transactions.length;
+
+      // Recalculate account balances from all transactions
+      await recalcAccountBalances();
+
       hideLoading();
       navTo(currentPage,document.querySelector(`.nav-item[data-page="${currentPage}"]`));
       showToast(`✅ Imported ${newTxs.length} transactions · ${toCreate.length} accounts auto-created!`);
